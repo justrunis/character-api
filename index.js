@@ -6,6 +6,8 @@ import GenshinCharacter from "./models/genshinCharacter.js";
 const app = express();
 const port = 3000;
 
+
+// Dummy data
 let characters = [
     new GenshinCharacter(1, "Diluc", "Pyro", "Claymore", 5, "04-30", "Mondstadt", "https://genshin-impact.fandom.com/wiki/Diluc", "https://static.wikia.nocookie.net/gensin-impact/images/4/4a/Character_Diluc_Card.jpg/revision/latest/scale-to-width-down/250?cb=20201116035958", "Noctua", "Knights of Favonius", "Freedom", "Dvalin"),
     new GenshinCharacter(2, "Keqing", "Electro", "Sword", 5, "11-20", "Liyue", "https://genshin-impact.fandom.com/wiki/Keqing", "https://static.wikia.nocookie.net/gensin-impact/images/2/2b/Character_Keqing_Card.jpg/revision/latest/scale-to-width-down/250?cb=20201116035959", "Trulla", "Liyue Qixing", "Prosperity", "Childe"),
@@ -95,6 +97,16 @@ app.get("/editCharacter/:id", (req, res) => {
         } else {
             res.status(404).json({ message: `Character with id: ${id} not found` });
         }
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+app.get("/deleteCharacter/:id", (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        characters = characters.filter((character) => character.id !== id);
+        res.redirect("/");
     } catch (error) {
         res.status(500).json({ message: "Internal server error" });
     }
