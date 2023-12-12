@@ -59,7 +59,7 @@ app.post("/add", (req, res) => {
     }
 });
 
-// Read all characters
+// Get all characters
 app.get("/", (req, res) => {
     try {
         characters.sort((a, b) => a.name.localeCompare(b.name));
@@ -69,11 +69,13 @@ app.get("/", (req, res) => {
     }
 });
 
+// Get edit page
 app.get("/edit/:id", (req, res) => {
-    res.render("editCharacter.ejs", { character: character[res.params.id] });
+    console.log(characters);
+    res.render("editCharacter.ejs", { character: characters[res.params.id] });
 });
 
-// Read a single character
+// Get a single character
 app.get("/character/:id", (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -102,6 +104,7 @@ app.get("/editCharacter/:id", (req, res) => {
     }
 });
 
+// Delete a character
 app.get("/deleteCharacter/:id", (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -145,23 +148,6 @@ app.patch("/character/:id", (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
-
-// Delete a character
-app.post("/characters/:id", (req, res) => {
-    const id = req.params.id;
-    console.log(id);
-    const index = characters.findIndex((character) => character.id === id);
-    console.log(characters)
-    console.log(index);
-    if (index !== -1) {
-        characters.splice(index, 1);
-        res.status(200).json({ message: `Character with id: ${id} deleted successfully` });
-    } else {
-        res.status(404).json({ message: `Character with id: ${id} not found for remove` });
-    res.status(500).json({ message: "Internal server error" });
-
-}});
-
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

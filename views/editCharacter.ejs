@@ -37,8 +37,8 @@
             <div class="mb-3">
                 <strong><label for="rarity" class="form-label">Rarity:</label></strong>
                 <select id="rarity" name="rarity" class="form-select" required>
-                    <option value="fourstar" <%=character.rarity==='fourstar' ? 'selected' : '' %>>4 star</option>
-                    <option value="fivestar" <%=character.rarity==='fivestar' ? 'selected' : '' %>>5 star</option>
+                    <option value="fourstar" <%=character.rarity===4 ? 'selected' : '' %>>4 star</option>
+                    <option value="fivestar" <%=character.rarity===5 ? 'selected' : '' %>>5 star</option>
                 </select>
             </div>
 
@@ -80,8 +80,8 @@
 
             <div class="mb-3">
                 <strong><label for="image_url" class="form-label">Image:</label></strong>
-                <input type="file" id="image_url" name="image_url" class="form-control" accept="image/*">
-                <div class="invalid-feedback">Please select an image file.</div>
+                <input type="url" id="image_url" name="image_url" class="form-control" value="<%= character.image_url %>">
+                <div class="invalid-feedback">Please enter a valid URL</div>
             </div>
 
             <div class="mb-3">
