@@ -45,8 +45,8 @@
                         <div class="mb-3">
                             <label for="rarity" class="form-label">Rarity:</label>
                             <select id="rarity" name="rarity" class="form-select" required>
-                                <option value="fourstar">4 star</option>
-                                <option value="fivestar">5 star</option>
+                                <option value="4">4 star</option>
+                                <option value="5">5 star</option>
                             </select>
                         </div>
 
@@ -87,7 +87,7 @@
 
                         <div class="mb-3">
                             <label for="image_url" class="form-label">Image:</label>
-                            <input type="file" id="image_url" name="image_url" class="form-control" accept="image/*">
+                            <input type="url" id="image_url" name="image_url" class="form-control">
                             <div class="invalid-feedback">Please select an image file.</div>
                         </div>
 
@@ -131,7 +131,7 @@
                             <h2 class="card-title text-center">
                                 <%= character.name %>
                             </h2>
-                            <!-- <img src="<%= character.image_url %>" alt="Character Image"> -->
+                            <img src="<%= character.image_url %>" alt="Character Image">
                             <p class="card-text">Element: <%= character.element %></p>
                             <p class="card-text">Weapon: <%= character.weapon %></p>
                             <p class="card-text">Birthday: <%= character.birthday %></p>
@@ -140,7 +140,8 @@
                             <div class="btn-group d-flex" role="group" aria-label="Character Actions">
                                 <a class="btn btn-primary btn-md" href="/character/<%= character.id %>">View</a>
                                 <a class="btn btn-primary btn-md" href="/editCharacter/<%= character.id %>">Edit</a>
-                                <a class="btn btn-danger btn-md" href="/deleteCharacter/<%= character.id %>">Remove</a>
+                                <a class="btn btn-danger btn-md" href="/deleteCharacter/<%= character.id %>" 
+                                    onclick="return confirm('Are you sure you want to remove this character?')">Remove</a>
                             </div>
                         </div>
                     </div>
