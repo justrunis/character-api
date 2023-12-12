@@ -1,0 +1,113 @@
+<%- include("partials/header.ejs") %>
+
+<h1 class="text-center">Edit character</h1>
+    <div class="container-fluid edit-container col-md-6 show">
+        <form id="editForm" action="/character/<%= character.id %>" method="POST" class="needs-validation" validate>
+            <input type="hidden" name="_method" value="PATCH">
+            <div class="mb-3">
+                <strong><label for="name" class="form-label">Name:</label></strong>
+                <input type="text" id="name" name="name" class="form-control" value="<%= character.name %>" required>
+                <div class="invalid-feedback">Please enter a name.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="weapon" class="form-label">Weapon:</label></strong>
+                <select id="weapon" name="weapon" class="form-select" required>
+                    <option value="Sword" <%=character.weapon==='Sword' ? 'selected' : '' %>>Sword</option>
+                    <option value="Claymore" <%=character.weapon==='Claymore' ? 'selected' : '' %>>Claymore</option>
+                    <option value="Bow" <%=character.weapon==='Bow' ? 'selected' : '' %>>Bow</option>
+                    <option value="Catalyst" <%=character.weapon==='Catalyst' ? 'selected' : '' %>>Catalyst</option>
+                    <option value="Polearm" <%=character.weapon==='Polearm' ? 'selected' : '' %>>Polearm</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="element" class="form-label">Element:</label></strong>
+                <select id="element" name="element" class="form-select" required>
+                    <option value="Anemo" <%=character.element==='Anemo' ? 'selected' : '' %>>Anemo</option>
+                    <option value="Geo" <%=character.element==='Geo' ? 'selected' : '' %>>Geo</option>
+                    <option value="Electro" <%=character.element==='Electro' ? 'selected' : '' %>>Electro</option>
+                    <option value="Hydro" <%=character.element==='Hydro' ? 'selected' : '' %>>Hydro</option>
+                    <option value="Pyro" <%=character.element==='Pyro' ? 'selected' : '' %>>Pyro</option>
+                    <option value="Cryo" <%=character.element==='Cryo' ? 'selected' : '' %>>Cryo</option>
+                    <option value="Dendro" <%=character.element==='Dendro' ? 'selected' : '' %>>Dendro</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="rarity" class="form-label">Rarity:</label></strong>
+                <select id="rarity" name="rarity" class="form-select" required>
+                    <option value="fourstar" <%=character.rarity==='fourstar' ? 'selected' : '' %>>4 star</option>
+                    <option value="fivestar" <%=character.rarity==='fivestar' ? 'selected' : '' %>>5 star</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="birthday" class="form-label">Birthday</label></strong>
+                <% var currentDate=new Date(); %>
+                <% var currentYear=currentDate.getFullYear(); %>
+                <input type="date" id="birthday" name="birthday" class="form-control"
+                    value="<%= currentYear + '-' + character.birthday %>" required>
+                <div class="invalid-feedback">Please enter a birthday.</div>
+            </div>
+
+            <script>
+                var year = new Date().getFullYear();
+                document.getElementById('birthday').setAttribute("min", year + "-01-01");
+                document.getElementById('birthday').setAttribute("max", year + "-12-31");
+            </script>
+
+            <div class="mb-3">
+                <strong><label for="region" class="form-label">Region:</label></strong>
+                <select id="region" name="region" class="form-select" required>
+                    <option value="Other" <%=character.region==='Other' ? 'selected' : '' %>>Other</option>
+                    <option value="Mondstadt" <%=character.region==='Mondstadt' ? 'selected' : '' %>>Mondstadt</option>
+                    <option value="Liyue" <%=character.region==='Liyue' ? 'selected' : '' %>>Liyue</option>
+                    <option value="Inazuma" <%=character.region==='Inazuma' ? 'selected' : '' %>>Inazuma</option>
+                    <option value="Sumeru" <%=character.region==='Sumeru' ? 'selected' : '' %>>Sumeru</option>
+                    <option value="Fontane" <%=character.region==='Fontane' ? 'selected' : '' %>>Fontane</option>
+                    <option value="Natlan" <%=character.region==='Natlan' ? 'selected' : '' %>>Natlan</option>
+                    <option value="Snezhnaya" <%=character.region==='Snezhnaya' ? 'selected' : '' %>>Snezhnaya</option>
+                </select>
+                <div class="invalid-feedback">Please select a region.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="wiki_url" class="form-label">Wiki URL:</label></strong>
+                <input type="url" id="wiki_url" name="wiki_url" class="form-control" value="<%= character.wiki_url %>">
+                <div class="invalid-feedback">Please enter a valid URL.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="image_url" class="form-label">Image:</label></strong>
+                <input type="file" id="image_url" name="image_url" class="form-control" accept="image/*">
+                <div class="invalid-feedback">Please select an image file.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="affiliation" class="form-label">Affiliation:</label></strong>
+                <input type="text" id="affiliation" name="affiliation" class="form-control"
+                    value="<%= character.affiliation %>">
+                <div class="invalid-feedback">Please enter an affiliation.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="talent_material_type" class="form-label">Talent Material Type:</label></strong>
+                <input type="text" id="talent_material_type" name="talent_material_type" class="form-control"
+                    value="<%= character.talent_material_type %>">
+                <div class="invalid-feedback">Please enter a talent material type.</div>
+            </div>
+
+            <div class="mb-3">
+                <strong><label for="boss_material_type" class="form-label">Boss Material Type:</label></strong>
+                <input type="text" id="boss_material_type" name="boss_material_type" class="form-control"
+                    value="<%= character.boss_material_type %>">
+                <div class="invalid-feedback">Please enter a boss material type.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Edit Character</button>
+        </form>
+    </div>
+
+
+    <%- include("partials/footer.ejs") %>
