@@ -119,7 +119,6 @@ app.get("/edit/:id", (req, res) => {
 // Get a single character
 app.get("/character/:id", (req, res) => {
     try {
-        console.log(req.params.id);
         const id = parseInt(req.params.id);
         const character = characters.find((character) => character.id === id);
         if (character) {
@@ -133,7 +132,6 @@ app.get("/character/:id", (req, res) => {
 });
 
 app.get("/editCharacter/:id", (req, res) => {
-    console.log(req.params.id);
     try {
         const id = parseInt(req.params.id);
         const character = characters.find((character) => character.id === id);
@@ -150,9 +148,7 @@ app.get("/editCharacter/:id", (req, res) => {
 // Delete a character
 app.get("/deleteCharacter/:id", async (req, res) => {
     try {
-        console.log(req.params.id);
         const id = parseInt(req.params.id);
-        console.log(id);
         await db.query("DELETE FROM characters WHERE id = $1", [id]);
         characters = characters.filter((character) => character.id !== id);
         res.redirect("/");
