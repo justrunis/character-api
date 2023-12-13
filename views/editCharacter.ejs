@@ -92,6 +92,13 @@
             </div>
 
             <div class="mb-3">
+                <strong><label for="constellation" class="form-label">Constellation:</label></strong>
+                <input type="text" id="constellation" name="constellation" class="form-control"
+                    value="<%= character.constellation %>">
+                <div class="invalid-feedback">Please enter a constellation.</div>
+            </div>
+
+            <div class="mb-3">
                 <strong><label for="talent_material_type" class="form-label">Talent Material Type:</label></strong>
                 <input type="text" id="talent_material_type" name="talent_material_type" class="form-control"
                     value="<%= character.talent_material_type %>">
