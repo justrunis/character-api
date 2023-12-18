@@ -1,0 +1,28 @@
+<%- include("partials/header.ejs") %>
+<div class="row-md-6 my-4 mx-auto">
+    <div class="container-fluid d-flex flex-column justify-content-center align-items-center col-md-4">
+        <% if(locals.characters){ %>
+            <% for (let i = 0; i < characters.length; i++) { %>
+                <div class="card my-2 col-md-6 <% if (characters[i].daysUntilBirthday === 0) { %>birthday-color<% } %>">
+
+                    <div class="card-body">
+                        <p class="card-title"><%= characters[i].name %></p>
+                        <div class="text-center my-4">
+                            <img src="<%= characters[i].image_url %>" height="200" width="200" class="card-image">
+                            <p class="card-text"><strong>Birthday:</strong> <%= characters[i].birthday %></p>
+                            <% if (characters[i].daysUntilBirthday === 0) { %>
+                                <p class="card-text birthday-text"><strong>Happy birthday to <%= characters[i].name %>!</strong></p>
+                            <% } else { %>
+                                <p class="card-text"><strong>Days until birthday:</strong> <%= characters[i].daysUntilBirthday %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        <% } else { %>
+            <h2 class="text-center">No characters to display</h2>
+        <% } %>
+    </div>
+</div>
+
+<%- include("partials/footer.ejs") %>

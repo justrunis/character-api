@@ -1,13 +1,15 @@
 <%- include("partials/header.ejs") %>
 
 <div class="col-md-6 mx-auto">
-    <div class="card my-3">
+    <div class="card my-3 container-fluid">
         <div class="card-body d-flex flex-column align-items-center justify-content-center">
             <h2 class="card-title text-center my-5">
                 <strong><%= character.name %></strong>
             </h2>
-            <img src="<%= character.image_url %>" height="200" width="200" class="img-fluid">
-            <p class="card-text mt-3"><strong>Element:</strong> <%= character.element %></p>
+            <img src="<%= character.image_url %>" height="200" width="200" class="card-image">
+            <p class="card-text"><strong>Element:</strong> 
+                <img class="image-fluid" src="/images/Element_<%= character.element %>.jpg" alt="<%= character.element %> Image" height="30" width="30">
+            </p>
             <p class="card-text"><strong>Weapon:</strong> <%= character.weapon %></p>
             <p class="card-text"><strong>Birthday:</strong> <%= character.birthday %></p>
             <p class="card-text"><strong>Rarity:</strong> <%= character.rarity %></p>

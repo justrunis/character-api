@@ -37,8 +37,8 @@
             <div class="mb-3">
                 <strong><label for="rarity" class="form-label">Rarity:</label></strong>
                 <select id="rarity" name="rarity" class="form-select" required>
-                    <option value="fourstar" <%=character.rarity===4 ? 'selected' : '' %>>4 star</option>
-                    <option value="fivestar" <%=character.rarity===5 ? 'selected' : '' %>>5 star</option>
+                    <option value="4" <%=character.rarity===4 ? 'selected' : '' %>>4 star</option>
+                    <option value="5" <%=character.rarity===5 ? 'selected' : '' %>>5 star</option>
                 </select>
             </div>
 
@@ -65,7 +65,7 @@
                     <option value="Liyue" <%=character.region==='Liyue' ? 'selected' : '' %>>Liyue</option>
                     <option value="Inazuma" <%=character.region==='Inazuma' ? 'selected' : '' %>>Inazuma</option>
                     <option value="Sumeru" <%=character.region==='Sumeru' ? 'selected' : '' %>>Sumeru</option>
-                    <option value="Fontane" <%=character.region==='Fontane' ? 'selected' : '' %>>Fontane</option>
+                    <option value="Fontaine" <%=character.region==='Fontaine' ? 'selected' : '' %>>Fontaine</option>
                     <option value="Natlan" <%=character.region==='Natlan' ? 'selected' : '' %>>Natlan</option>
                     <option value="Snezhnaya" <%=character.region==='Snezhnaya' ? 'selected' : '' %>>Snezhnaya</option>
                 </select>

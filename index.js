@@ -1,41 +1,45 @@
 import express from "express";
 import bodyParser from "body-parser";
-import axios from "axios";
-import GenshinCharacter from "./models/genshinCharacter.js";
 import pg from "pg";
+import { getCharactersWithClosestBirthdays } from "./lib.js";
+
 
 const app = express();
 const port = 3000;
 
+// Change to your own database
 const db = new pg.Client({
-    user: "postgres",
+    user: "localhost",
     host: "localhost",
     database: "characters",
     password: "dbpassword123",
-    port: 5432,
+    port: 5433,
 });
 db.connect();
-
-let characters = [];
-
-// Fetch all characters from the database
-const fetchAllCharactersFromDatabase = () => {
-
-    db.query("SELECT * FROM Characters", (err, res) => {
-        if (err) {
-            console.error("Error executing query", err.stack);
-        } else {
-            characters = res.rows;
-        }
-    });
-    return characters;
-};
-
-fetchAllCharactersFromDatabase();
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+async function getCharacters() {
+    const result = await db.query("SELECT * FROM characters ORDER BY name");
+    return result.rows;
+}
+
+async function getCharacterById(id) {
+    const result = await db.query("SELECT * FROM characters WHERE id = $1", [id]);
+    return result.rows[0];
+}
+
+async function searchCharacterByName(name) {
+    name = name.toLowerCase();
+    const searchQuery = "SELECT * FROM characters WHERE LOWER(name) LIKE LOWER($1)";
+    const result = await db.query(searchQuery, [`%${name}%`]);
+    return result.rows;
+}
+
+let characters = getCharacters();
+
+// Get add page
 app.get("/addCharacter", async (req, res) => {
     res.render("addCharacter.ejs");
 });
@@ -78,36 +82,22 @@ app.post("/add", async (req, res) => {
 
 
         await db.query(query, values);
-        characters.push({
-            name,
-            element,
-            weapon,
-            rarity,
-            birthday: birthday.slice(5, birthday.length),
-            region,
-            wiki_url,
-            image_url,
-            constellation,
-            affiliation,
-            talent_material_type,
-            boss_material_type
-        });
-
         
         res.redirect("/");
     } catch (error) {
-        res.status(500).json({ message: "Internal server error: " + error.message });
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 });
 
 // Get all characters
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
     try {
-        fetchAllCharactersFromDatabase();
-        characters.sort((a, b) => a.name.localeCompare(b.name));
-        res.render("index.ejs", { characters });
+        const characters = await getCharacters();
+        res.render('index.ejs', { characters });
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -117,31 +107,32 @@ app.get("/edit/:id", (req, res) => {
 });
 
 // Get a single character
-app.get("/character/:id", (req, res) => {
+app.get("/character/:id", async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const character = characters.find((character) => character.id === id);
+        const character = await getCharacterById(parseInt(req.params.id));
         if (character) {
             res.render("viewCharacter.ejs", { character });
         } else {
-            res.status(404).json({ message: `Character with id: ${id} not found` });
+            res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
         }
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 });
 
-app.get("/editCharacter/:id", (req, res) => {
+// Get edit page
+app.get("/editCharacter/:id", async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const character = characters.find((character) => character.id === id);
+        const character = await getCharacterById(parseInt(req.params.id));
         if (character) {
             res.render("editCharacter.ejs", { character });
         } else {
-            res.status(404).json({ message: `Character with id: ${id} not found` });
+            res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
         }
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -150,10 +141,10 @@ app.get("/deleteCharacter/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         await db.query("DELETE FROM characters WHERE id = $1", [id]);
-        characters = characters.filter((character) => character.id !== id);
         res.redirect("/");
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -162,59 +153,53 @@ app.get("/deleteCharacter/:id", async (req, res) => {
 app.post("/character/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        console.log(id);
-        const character = characters.find((character) => character.id === id);
+        const character = (await characters).find((character) => character.id === id);
         const getCharacterByIdQuery = "SELECT * FROM characters WHERE id = $1";
-        const currectCharacter = await db.query(getCharacterByIdQuery, [id]);
-        console.log(currectCharacter.rows[0].name);
+        const currentCharacter = await db.query(getCharacterByIdQuery, [id]);
 
-        
         if (character) {
-            const { name, element, weapon, 
-                rarity, birthday, region, wiki_url, 
-                image_url, constellation, affiliation,
-                talent_material_type, boss_material_type } = req.params;
-            
             const updateQuery = `UPDATE characters SET name = $1, element = $2, weapon = $3, rarity = $4, birthday = $5, region = $6, wiki_url = $7, image_url = $8, constellation = $9, affiliation = $10, talent_material_type = $11, boss_material_type = $12 WHERE id = $13`;
             const values = [
-                name || currectCharacter.rows[0].name,
-                element || currectCharacter.rows[0].element,
-                weapon || currectCharacter.rows[0].weapon,
-                rarity || currectCharacter.rows[0].rarity,
-                birthday ? birthday.slice(5, birthday.length) : currectCharacter.rows[0].birthday,
-                region || currectCharacter.rows[0].region,
-                wiki_url || currectCharacter.rows[0].wiki_url,
-                image_url || currectCharacter.rows[0].image_url,
-                constellation || currectCharacter.rows[0].constellation,
-                affiliation || currectCharacter.rows[0].affiliation,
-                talent_material_type || currectCharacter.rows[0].talent_material_type,
-                boss_material_type || currectCharacter.rows[0].boss_material_type,
+                req.body.name || currentCharacter.rows[0].name,
+                req.body.element || currentCharacter.rows[0].element,
+                req.body.weapon || currentCharacter.rows[0].weapon,
+                req.body.rarity || currentCharacter.rows[0].rarity,
+                req.body.birthday ? req.body.birthday.slice(5, req.body.birthday.length) : currentCharacter.rows[0].birthday,
+                req.body.region || currentCharacter.rows[0].region,
+                req.body.wiki_url || currentCharacter.rows[0].wiki_url,
+                req.body.image_url || currentCharacter.rows[0].image_url,
+                req.body.constellation || currentCharacter.rows[0].constellation,
+                req.body.affiliation || currentCharacter.rows[0].affiliation,
+                req.body.talent_material_type || currentCharacter.rows[0].talent_material_type,
+                req.body.boss_material_type || currentCharacter.rows[0].boss_material_type,
                 id
             ];
 
             await db.query(updateQuery, values);
-                
-            character.name = name || character.name;
-            character.element = element || character.element;
-            character.weapon = weapon || character.weapon;
-            character.rarity = rarity || character.rarity;
-            character.birthday = birthday ? birthday.slice(5, birthday.length) : character.birthday;
-            character.region = region || character.region;
-            character.wiki_url = wiki_url || character.wiki_url;
-            character.image_url = image_url || character.image_url;
-            character.constellation = constellation || character.constellation;
-            character.affiliation = affiliation || character.affiliation;
-            character.talent_material_type = talent_material_type || character.talent_material_type;
-            character.boss_material_type = boss_material_type || character.boss_material_type;
-
 
             res.redirect("/");
         } else {
             res.status(404).json({ message: `Character with id: ${id} not found for update` });
         }
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
+});
+
+app.get('/birthday' , async (req, res) => {
+    try {
+        res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters()) });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/search', async (req, res) => {
+    const name = req.query.name;
+    const characters = await searchCharacterByName(name);
+    res.render('index.ejs', { characters });
 });
 
 app.listen(port, () => {
