@@ -1,8 +1,8 @@
 <%- include("partials/header.ejs") %>
 <%- include("partials/addCharacter.ejs") %>
 
-
-    
+<div class="container-fluid justify-content-center align-items-center">
+    <form class="my-2" action="/search" method="GET"></form>
     <div class="container-fluid justify-content-center align-items-center">
         <form class="my-2" action="/search" method="GET">
             <div class="input-group">
@@ -12,6 +12,18 @@
                 </div>
             </div>
         </form>
+        <!-- <form class="my-2" action="/sort" method="GET">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select" class="form-control">
+                <option value="name">Name</option>
+                <option value="weapon">Weapon</option>
+                <option value="element">Element</option>
+                <option value="rarity">Rarity</option>
+                <option value="birthday">Birthday</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Sort</button>
+        </form> -->
+
 
         <% if (locals.characters.length === 0) { %>
             <h2 class="text-center">No characters found.</h2>

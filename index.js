@@ -202,6 +202,10 @@ app.get('/search', async (req, res) => {
     res.render('index.ejs', { characters });
 });
 
+app.get('/sort', async (req, res) => {
+    // todo: implement sort
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
