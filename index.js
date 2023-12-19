@@ -246,6 +246,7 @@ app.get('/birthday' , async (req, res) => {
 });
 
 // Search/Sort for a character
+// Todo: fix the sort
 app.get('/search', async (req, res) => {
     console.log(req.query);
     // let result = await searchCharacterByName(req.query.name);
