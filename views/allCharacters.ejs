@@ -2,28 +2,47 @@
 <%- include("partials/addCharacter.ejs") %>
 
 <div class="container-fluid justify-content-center align-items-center">
-    <form class="my-2" action="/search" method="GET"></form>
-    <div class="container-fluid justify-content-center align-items-center">
         <form class="my-2" action="/search" method="GET">
-            <div class="input-group">
-                <input type="text" class="form-control" name="name" placeholder="Search by character name">
-                <div class="input-group-append" style="margin-left: 0.5rem">
-                    <button class="btn btn-primary" type="submit">Search</button>
+            <div class="row my-2">
+                <div class="col-md-12">
+                    <label for="name">Search by character name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="name" placeholder="Enter character name">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label for="sortElement">Sort by element</label>
+                    <div class="input-group">
+                        <select id="sortElement" name="sortElement" class="form-control">
+                            <option value="">-- Select element --</option>
+                            <option value="Anemo">Anemo</option>
+                            <option value="Geo">Geo</option>
+                            <option value="Electro">Electro</option>
+                            <option value="Dendro">Dendro</option>
+                            <option value="Hydro">Hydro</option>
+                            <option value="Pyro">Pyro</option>
+                            <option value="Cryo">Cryo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label for="sortWeapon">Sort by weapon</label>
+                    <div class="input-group">
+                        <select id="sortWeapon" name="sortWeapon" class="form-control">
+                            <option value="">-- Select weapon --</option>
+                            <option value="Sword">Sword</option>
+                            <option value="Claymore">Claymore</option>
+                            <option value="Bow">Bow</option>
+                            <option value="Catalyst">Catalyst</option>
+                            <option value="Polearm">Polearm</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
         </form>
-        <!-- <form class="my-2" action="/sort" method="GET">
-            <label for="sort-select">Sort by:</label>
-            <select id="sort-select" class="form-control">
-                <option value="name">Name</option>
-                <option value="weapon">Weapon</option>
-                <option value="element">Element</option>
-                <option value="rarity">Rarity</option>
-                <option value="birthday">Birthday</option>
-            </select>
-            <button class="btn btn-primary" type="submit">Sort</button>
-        </form> -->
-
 
         <% if (locals.characters.length === 0) { %>
             <h2 class="text-center">No characters found.</h2>
@@ -41,6 +60,11 @@
                             <img class="card-image" src="<%= character.image_url %>" alt="<%= character.name %> Image">
                             <p class="card-text"><strong>Element:</strong> 
                                 <img class="image-fluid" src="/images/Element_<%= character.element %>.jpg" alt="<%= character.element %> Image" height="30" width="30">
+                            </p>
+                            <p class="card-text"><strong>Rarity:</strong>
+                                <% for (let i = 0; i < character.rarity; i++) { %>
+                                    <span class="star">⭐</span>
+                                <% } %>
                             </p>
                             <p class="card-text"><strong>Weapon:</strong> <%= character.weapon %></p>
                             <p class="card-text"><strong>Birthday:</strong> <%= character.birthday %></p>

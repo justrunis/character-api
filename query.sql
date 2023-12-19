@@ -15,6 +15,23 @@ CREATE TABLE characters (
     boss_material_type VARCHAR(50)
 );
 
+-- Create table for users with timestamps
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    gender VARCHAR(50) NOT NULL,
+    ADD COLUMN role VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE users
+ADD COLUMN role VARCHAR(50) NOT NULL
+
+
 -- Insert some Genshin characters
 INSERT INTO characters (name, element, weapon, rarity, birthday, region, wiki_url, image_url, constellation, affiliation, talent_material_type, boss_material_type)
 VALUES 
@@ -30,4 +47,5 @@ VALUES
     ('Neuvillette', 'Hydro', 'Catalyst', 5, '12-18', 'Fontaine', 'https://genshin-impact.fandom.com/wiki/Neuvillette', 'https://static.wikia.nocookie.net/gensin-impact/images/2/21/Neuvillette_Icon.png', 'Leviathan Judicator', 'Fontaine', 'Order', 'Apep'),
     ('Kaedehara Kazuha', 'Anemo', 'Sword', 5, '10-29', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Kaedehara_Kazuha', 'https://static.wikia.nocookie.net/gensin-impact/images/e/e3/Kaedehara_Kazuha_Icon.png', 'Acer Palmatum', 'Inazuma', 'Resistance', 'Signora'),
     ('Yoimiya', 'Pyro', 'Bow', 5, '07-21', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Yoimiya', 'https://static.wikia.nocookie.net/gensin-impact/images/8/88/Yoimiya_Icon.png', 'Trifolium', 'Inazuma', 'Prosperity', 'Signora'),
-    ('Sayu', 'Anemo', 'Claymore', 4, '10-19', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Sayu', 'https://static.wikia.nocookie.net/gensin-impact/images/2/22/Sayu_Icon.png', 'Nyctereutes Minor', 'Inazuma', 'Prosperity', 'Signora')
+    ('Sayu', 'Anemo', 'Claymore', 4, '10-19', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Sayu', 'https://static.wikia.nocookie.net/gensin-impact/images/2/22/Sayu_Icon.png', 'Nyctereutes Minor', 'Inazuma', 'Prosperity', 'Signora'),
+    ('Layla', 'Cryo', 'Sword', 4, '12-19', 'Sumeru', 'https://genshin-impact.fandom.com/wiki/Layla', 'https://static.wikia.nocookie.net/gensin-impact/images/1/1a/Layla_Icon.png', 'Luscinia', 'Rtawahist', 'Ingenuity', 'Scaramouche')

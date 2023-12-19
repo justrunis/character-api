@@ -1,0 +1,56 @@
+<%- include("partials/header.ejs") %>
+
+  <div class="row d-flex justify-content-center align-items-center">
+    <div class="col-sm-6 mt-5">
+      <div class="card">
+        <h1>Registration</h1>
+        <div class="card-body">
+
+
+          <!-- Makes POST request to /register route -->
+          <form action="/register" method="POST">
+            <% if (locals.error) { %>
+              <div class="alert alert-danger" role="alert">
+                <%= locals.error %>
+              </div>
+              <% } %>
+                <div class="form-group mt-2">
+                  <label for="username">Username<span class="required text-danger"> *</span></label>
+                  <input type="username" class="form-control" name="username" required>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="email">Email<span class="required text-danger"> *</span></label>
+                  <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="date_of_birth">Date of Birth<span class="required text-danger"> *</span></label>
+                  <input type="date" class="form-control" name="date_of_birth" required>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="gender">Gender</label>
+                  <select class="form-control" name="gender">
+                    <option value="other">Other</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="password">Password<span class="required text-danger"> *</span></label>
+                  <input type="password" class="form-control" name="password" required>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="confirm_password">Confirm Password<span class="required text-danger"> *</span></label>
+                  <input type="password" class="form-control" name="confirm_password" required>
+                </div>
+                <div class="form-group mt-2">
+                  <button type="submit" class="btn btn-primary mt-2">Register</button>
+                </div>
+                <div class="form-group mt-2 d-flex justify-content-center align-items-center">
+                  <p>Already have an account? <a href="/login" style="color:dodgerblue">Log in</a></p>
+                </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include("partials/footer.ejs") %>
