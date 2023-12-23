@@ -16,6 +16,7 @@ const saltRounds = 10;
 const characterAmount = 5;
 
 // Change to your own database
+// Windows setup
 const db = new Pool({
     user: "postgres",
     host: "localhost",
@@ -23,7 +24,8 @@ const db = new Pool({
     password: "dbpassword123",
     port: 5432,
 });
-// const db = new pg.Client({
+// Linux setup
+// const db = new Pool({
 //     user: "localhost",
 //     host: "localhost",
 //     database: "characters",
