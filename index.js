@@ -133,11 +133,12 @@ passport.use("local-login", new LocalStrategy(async (email, password, done) => {
     }
 }));
  
-// Serialize and deserialize user information for session management
+// Serialize user information for session management
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
-  
+
+// Deserialize user information for session management
 passport.deserializeUser(async (id, done) => {
     try {
         // Find the user by ID and return the user object
@@ -149,12 +150,22 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+/**
+ * Function to make database queries
+ * @param {*} sql query string
+ * @param {*} params query parameters
+ * @returns query result
+ */
 async function query(sql, params) {
     const client = await db.connect();
     try {
         // remove this log later
         console.log("SQL:", sql, params);
-        return await client.query(sql, params);
+        if (params) {
+            return await client.query(sql, params);
+        } else {
+            return await client.query(sql);
+        }
     } finally {
         client.release(); 
     }
@@ -162,49 +173,50 @@ async function query(sql, params) {
 
 // Get all characters
 async function getCharacters() {
-    const result = await db.query("SELECT * FROM characters ORDER BY name");
+    console.log("Getting characters...");
+    const result = await query("SELECT * FROM characters ORDER BY name");
     return result.rows;
 }
 
 async function getCharactersByElement(data) {
     const { name, sortWeapon, sortElement } = data;
     
-    let query = "SELECT * FROM characters WHERE";
+    let sqlQuery = "SELECT * FROM characters WHERE";
     const values = [];
     
     if (name) {
-        query += " name = $1";
+        sqlQuery += " name = $1";
         values.push(name);
     }
     
     if (sortWeapon) {
         if (values.length > 0) {
-            query += " AND";
+            sqlQuery += " AND";
         }
-        query += " weapon = $2";
+        sqlQuery += " weapon = $2";
         values.push(sortWeapon);
     }
     
     if (sortElement) {
         if (values.length > 0) {
-            query += " AND";
+            sqlQuery += " AND";
         }
-        query += " element = $3";
+        sqlQuery += " element = $3";
         values.push(sortElement);
     }
     
-    const result = await db.query(query, values);
+    const result = await query(sqlQuery, values);
     return result.rows;
 }
 
 async function getCharactersByWeapon(weapon, characters) {
-    const result = await db.query("SELECT * FROM characters WHERE weapon = $1", [weapon]);
+    const result = await query("SELECT * FROM characters WHERE weapon = $1", [weapon]);
     return result.rows;
 }
 
 // Get character by id
 async function getCharacterById(id) {
-    const result = await db.query("SELECT * FROM characters WHERE id = $1", [id]);
+    const result = await query("SELECT * FROM characters WHERE id = $1", [id]);
     return result.rows[0];
 }
 
@@ -212,7 +224,7 @@ async function getCharacterById(id) {
 async function searchCharacterByName(name) {
     name = name.toLowerCase();
     const searchQuery = "SELECT * FROM characters WHERE LOWER(name) LIKE LOWER($1)";
-    const result = await db.query(searchQuery, [`%${name}%`]);
+    const result = await query(searchQuery, [`%${name}%`]);
     return result.rows;
 }
 
@@ -246,7 +258,7 @@ app.post("/add", async (req, res) => {
             boss_material_type
         } = req.body;
 
-        const query = `INSERT INTO characters (name, element, weapon, rarity, birthday, region, wiki_url, image_url, constellation, affiliation, talent_material_type, boss_material_type) 
+        const sqlQuery = `INSERT INTO characters (name, element, weapon, rarity, birthday, region, wiki_url, image_url, constellation, affiliation, talent_material_type, boss_material_type) 
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`;
 
         const values = [
@@ -265,7 +277,7 @@ app.post("/add", async (req, res) => {
         ];
 
 
-        await db.query(query, values);
+        await query(sqlQuery, values);
         
         res.redirect("/");
     } catch (error) {
@@ -343,7 +355,7 @@ app.get("/deleteCharacter/:id", async (req, res) => {
     if(req.isAuthenticated()){
         try {
             const id = parseInt(req.params.id);
-            await db.query("DELETE FROM characters WHERE id = $1", [id]);
+            await query("DELETE FROM characters WHERE id = $1", [id]);
             res.redirect("/");
         } catch (error) {
             console.log(error);
@@ -360,7 +372,7 @@ app.post("/character/:id", async (req, res) => {
         const id = parseInt(req.params.id);
         const character = (await characters).find((character) => character.id === id);
         const getCharacterByIdQuery = "SELECT * FROM characters WHERE id = $1";
-        const currentCharacter = await db.query(getCharacterByIdQuery, [id]);
+        const currentCharacter = await query(getCharacterByIdQuery, [id]);
 
         if (character) {
             const updateQuery = `UPDATE characters SET name = $1, element = $2, weapon = $3, rarity = $4, birthday = $5, region = $6, wiki_url = $7, image_url = $8, constellation = $9, affiliation = $10, talent_material_type = $11, boss_material_type = $12 WHERE id = $13`;
@@ -428,6 +440,8 @@ app.get('/search', async (req, res) => {
         res.redirect("/");
     }
 });
+
+// All routes
 
 // Login page
 app.get('/', (req, res) => {
