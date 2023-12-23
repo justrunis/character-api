@@ -3,6 +3,11 @@ import bodyParser from "body-parser";
 import pg from "pg";
 import { getCharactersWithClosestBirthdays } from "./lib.js";
 import bcrypt from "bcrypt";
+import passport from "passport";
+import session from "express-session";
+import { Strategy as LocalStrategy } from 'passport-local';
+const { Pool } = pg;
+import 'dotenv/config';
 
 
 const app = express();
@@ -11,24 +16,147 @@ const saltRounds = 10;
 const characterAmount = 5;
 
 // Change to your own database
-// const db = new pg.Client({
-//     user: "postgres",
-//     host: "postgres",
-//     database: "characters",
-//     password: "dbpassword123",
-//     port: 5432,
-// });
-const db = new pg.Client({
-    user: "localhost",
+const db = new Pool({
+    user: "postgres",
     host: "localhost",
     database: "characters",
     password: "dbpassword123",
-    port: 5433,
+    port: 5432,
 });
-db.connect();
+// const db = new pg.Client({
+//     user: "localhost",
+//     host: "localhost",
+//     database: "characters",
+//     password: "dbpassword123",
+//     port: 5433,
+// });
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Configure session handling using express-session
+app.use(
+    session({
+        secret: process.env.PASSPORT_SECRET, // Secret used to sign the session ID cookie
+        resave: false, // Do not save session if unmodified
+        saveUninitialized: false, // Do not create a session until something is stored
+        cookie: {
+            maxAge: 3600000, // Session expiration time in milliseconds
+            // secure: true, // Only transmit over HTTPS
+            // httpOnly: true, // Restrict access from JavaScript
+            // sameSite: 'strict' // Control cross-origin cookie usage
+        },
+    })
+);
+ 
+// Initialize Passport and use Passport sessions
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Check if email exists in the database
+const emailExists = async (email) => {
+    // Query the database to check if the email exists
+    const data = await query("SELECT * FROM users WHERE email=$1", [email]);
+   
+    // Return the user data if found, otherwise return false
+    if (data.rowCount == 0) return false;
+    return data.rows[0];
+};
+
+// Create a new user in the database
+const createUser = async (username, email, password, date_of_birth, gender) => {
+    // Generate a salt and hash the password
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password, salt);
+   
+    // Get the current time
+    const currentTime = new Date().toISOString();
+   
+    // Insert the new user into the database and return the user data
+    const data = await query(
+        "INSERT INTO users(username, email, password, date_of_birth, gender, role, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, email, date_of_birth, gender, role, created_at, updated_at",
+        [username, email, hash, date_of_birth, gender, "user", currentTime, currentTime]
+    );
+   
+    // Return the newly created user
+    if (data.rowCount == 0) return false;
+    return data.rows[0];
+};
+ 
+// Match entered password with the hashed password from the database
+const matchPassword = async (password, hashPassword) => {
+    // Compare the entered password with the hashed password
+    const match = await bcrypt.compare(password, hashPassword);
+    return match
+};
+ 
+// Passport strategy for user registration
+passport.use("local-register", new LocalStrategy({ passReqToCallback: true }, async (req, email, password, done) => {
+    try {
+        const { date_of_birth, gender, name } = req.body;
+
+        // Check if the user already exists
+        const userExists = await emailExists(email);
+ 
+        // If user exists, return false
+        if (userExists) {
+            return done(null, false);
+        }
+ 
+        // Create a new user and return the user object
+        const user = await createUser(name, email, password, date_of_birth, gender);
+        return done(null, user);
+    } catch (error) {
+        done(error);
+    }
+}));
+ 
+// Passport strategy for user login
+passport.use("local-login", new LocalStrategy(async (email, password, done) => {
+    try {
+        // Find the user in the database
+        const user = await emailExists(email);
+        
+        // If user doesn't exist, return false
+        if (!user) return done(null, false);
+        
+        // Check if the password matches
+        const isMatch = await matchPassword(password, user.password);
+        
+        // Return user object if password matches, otherwise return false
+        if (!isMatch) return done(null, false);
+        return done(null, user);
+    } catch (error) {
+        return done(error, false);
+    }
+}));
+ 
+// Serialize and deserialize user information for session management
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+  
+passport.deserializeUser(async (id, done) => {
+    try {
+        // Find the user by ID and return the user object
+        const response = await query('SELECT * FROM users WHERE id = $1', [id]);
+        const user = response.rows[0];
+        done(null, user);
+    } catch (error) {
+        done(error, false);
+    }
+});
+
+async function query(sql, params) {
+    const client = await db.connect();
+    try {
+        // remove this log later
+        console.log("SQL:", sql, params);
+        return await client.query(sql, params);
+    } finally {
+        client.release(); 
+    }
+}
 
 // Get all characters
 async function getCharacters() {
@@ -90,7 +218,12 @@ let characters = getCharacters();
 
 // Get add page
 app.get("/addCharacter", async (req, res) => {
-    res.render("addCharacter.ejs");
+    if(req.isAuthenticated()) {
+        res.render("addCharacter.ejs");
+    }
+    else{
+        res.redirect("/");
+    }
 });
 
 // Create a new character
@@ -141,59 +274,81 @@ app.post("/add", async (req, res) => {
 
 // Get all characters
 app.get("/characters", async (req, res) => {
-    try {
-        const characters = await getCharacters();
-        res.render('allCharacters.ejs', { characters });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
+    if(req.isAuthenticated()) {
+        try {
+            const characters = await getCharacters();
+            res.render('allCharacters.ejs', { characters });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    else{
+        res.redirect("/");
     }
 });
 
 // Get edit page
 app.get("/edit/:id", (req, res) => {
-    res.render("editCharacter.ejs", { character: characters[res.params.id] });
+    if(req.isAuthenticated()){
+        res.render("editCharacter.ejs", { character: characters[req.params.id] });
+    }
+    else{
+        res.redirect("/");
+    }
 });
 
 // Get a single character
 app.get("/character/:id", async (req, res) => {
-    try {
-        const character = await getCharacterById(parseInt(req.params.id));
-        if (character) {
-            res.render("viewCharacter.ejs", { character });
-        } else {
-            res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
+    if(req.isAuthenticated()) {
+        try {
+            const character = await getCharacterById(parseInt(req.params.id));
+            if (character) {
+                res.render("viewCharacter.ejs", { character });
+            } else {
+                res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
+    } else{
+        res.redirect("/");
     }
 });
 
 // Get edit page
 app.get("/editCharacter/:id", async (req, res) => {
-    try {
-        const character = await getCharacterById(parseInt(req.params.id));
-        if (character) {
-            res.render("editCharacter.ejs", { character });
-        } else {
-            res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
+    if(req.isAuthenticated()) {
+        try {
+            const character = await getCharacterById(parseInt(req.params.id));
+            if (character) {
+                res.render("editCharacter.ejs", { character });
+            } else {
+                res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
+    } else {
+        res.redirect("/");
     }
 });
 
 // Delete a character
 app.get("/deleteCharacter/:id", async (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        await db.query("DELETE FROM characters WHERE id = $1", [id]);
+    if(req.isAuthenticated()){
+        try {
+            const id = parseInt(req.params.id);
+            await db.query("DELETE FROM characters WHERE id = $1", [id]);
+            res.redirect("/");
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else {
         res.redirect("/");
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
     }
 });
 
@@ -223,7 +378,7 @@ app.post("/character/:id", async (req, res) => {
                 id
             ];
 
-            await db.query(updateQuery, values);
+            await query(updateQuery, values);
 
             res.redirect("/");
         } else {
@@ -237,31 +392,39 @@ app.post("/character/:id", async (req, res) => {
 
 // Get characters with closest birthdays
 app.get('/birthday' , async (req, res) => {
-    try {
-        res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters(), characterAmount) });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
+    if(req.isAuthenticated()) {
+        try {
+            res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters(), characterAmount) });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: error.message });
+        }
+    } else {
+        res.redirect("/");
     }
 });
 
 // Search/Sort for a character
 // Todo: fix the sort
 app.get('/search', async (req, res) => {
-    console.log(req.query);
-    // let result = await searchCharacterByName(req.query.name);
+    if(req.isAuthenticated()) {
+        console.log(req.query);
+        // let result = await searchCharacterByName(req.query.name);
     
-    // // Sort characters by element if sortElement is provided
-    // if (req.query.sortElement) {
-    //     result = await getCharactersByElement(req.query.sortElement, result);
-    // }
-    
-    // // Sort characters by weapon if sortWeapon is provided
-    // if (req.query.sortWeapon) {
-    //     result = await getCharactersByWeapon(req.query.sortWeapon, result);
-    // }
-    
-    // res.render('allCharacters.ejs', { characters: result });
+        // // Sort characters by element if sortElement is provided
+        // if (req.query.sortElement) {
+        //     result = await getCharactersByElement(req.query.sortElement, result);
+        // }
+        
+        // // Sort characters by weapon if sortWeapon is provided
+        // if (req.query.sortWeapon) {
+        //     result = await getCharactersByWeapon(req.query.sortWeapon, result);
+        // }
+        
+        // res.render('allCharacters.ejs', { characters: result });
+    } else {
+        res.redirect("/");
+    }
 });
 
 // Login page
@@ -269,75 +432,29 @@ app.get('/', (req, res) => {
     res.render('login.ejs');
 });
 
-// Login submition
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const query = 'SELECT * FROM users WHERE email = $1';
-    const values = [username];
-    const result = await db.query(query, values);
-    console.log(result.rows);
-
-    if (result.rows.length === 0) {
-        res.render('login.ejs', { error: 'No user with this email adress' });
-    } else {
-        const user = result.rows[0];
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-        if (isPasswordCorrect) {
-            res.redirect('/characters');
-        } else {
-            res.render('login.ejs', { error: 'Incorrect password' });
-        }
-    }
-});
-
 // Register page
 app.get('/register', (req, res) => {
     res.render('register.ejs');
 });
 
-// Registration submition
-app.post('/register', async (req, res) => {
-    const { username, email, date_of_birth, gender, password } = req.body;
-    try {
-        // Check if email or username already exists
-        const checkQuery = `SELECT * FROM users WHERE email = $1 OR username = $2`;
-        const checkValues = [email, username];
-        const checkResult = await db.query(checkQuery, checkValues);
+// Login form submission route
+app.post('/login', passport.authenticate('local-login', {
+    failureRedirect: '/', // Redirect on failure
+    successRedirect: '/characters', // Redirect on success
+}));
+ 
+// Registration form submission route
+app.post("/register", passport.authenticate("local-register", {
+    failureRedirect: '/register', // Redirect if registration fails
+    successRedirect: '/characters', // Redirect on successful registration
+}));
 
-        if (checkResult.rows.length > 0) {
-            res.render('register.ejs', { error: 'Email or username already exists' });
-            return;
-        }
-
-        // Check if passwords match
-        if (password !== req.body.confirm_password) {
-            res.render('register.ejs', { error: 'Passwords do not match' });
-            return;
-        }
-
-        const salt = await bcrypt.genSalt(saltRounds);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const defaultRole = 'user';
-
-        const query = `INSERT INTO users (username, email, date_of_birth, gender, role, password, created_at, updated_at)
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
-        const values = [
-            username,
-            email,
-            date_of_birth,
-            gender,
-            defaultRole,
-            hashedPassword,
-            new Date(),
-            new Date()
-        ];
-        db.query(query, values);
-        res.redirect('/');
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
-    }
+// Logout route
+app.get("/logout",(req,res)=>{
+    res.clearCookie("connect.sid"); // Clear the cookies left on client-side
+    req.logOut(()=>{
+        res.redirect("/"); // Redirect to the home page after logout
+    });
 });
 
 // Start server

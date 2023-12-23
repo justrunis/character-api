@@ -22,7 +22,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     date_of_birth DATE NOT NULL,
     gender VARCHAR(50) NOT NULL,
-    ADD COLUMN role VARCHAR(50) NOT NULL,
+    role VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -43,7 +43,7 @@ VALUES
     ('Tartaglia', 'Hydro', 'Bow', 5, '07-20', 'Snezhnaya', 'https://genshin-impact.fandom.com/wiki/Tartaglia', 'https://static.wikia.nocookie.net/gensin-impact/images/8/85/Tartaglia_Icon.png', 'Monoceros Caeli', 'Fatui', 'Resistance', 'Andrius'),
     ('Zhongli', 'Geo', 'Polearm', 5, '12-31', 'Liyue', 'https://genshin-impact.fandom.com/wiki/Zhongli', 'https://static.wikia.nocookie.net/gensin-impact/images/a/a6/Zhongli_Icon.png', 'Lapis Dei', 'Liyue Qixing', 'Prosperity', 'Andrius'),
     ('Ganyu', 'Cryo', 'Bow', 5, '12-02', 'Liyue', 'https://genshin-impact.fandom.com/wiki/Ganyu', 'https://static.wikia.nocookie.net/gensin-impact/images/7/79/Ganyu_Icon.png', 'Sinae Unicornis', 'Liyue Qixing', 'Prosperity', 'Andrius'),
-    ('Raiden Shogun', 'Electro', 'Polearm', 5, '10-13', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Raiden_Shogun', 'https://static.wikia.nocookie.net/gensin-impact/images/2/24/Raiden_Shogun_Icon.png', 'Transcendence', 'Shogunate', 'Prosperity', 'Signora');
+    ('Raiden Shogun', 'Electro', 'Polearm', 5, '10-13', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Raiden_Shogun', 'https://static.wikia.nocookie.net/gensin-impact/images/2/24/Raiden_Shogun_Icon.png', 'Transcendence', 'Shogunate', 'Prosperity', 'Signora'),
     ('Neuvillette', 'Hydro', 'Catalyst', 5, '12-18', 'Fontaine', 'https://genshin-impact.fandom.com/wiki/Neuvillette', 'https://static.wikia.nocookie.net/gensin-impact/images/2/21/Neuvillette_Icon.png', 'Leviathan Judicator', 'Fontaine', 'Order', 'Apep'),
     ('Kaedehara Kazuha', 'Anemo', 'Sword', 5, '10-29', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Kaedehara_Kazuha', 'https://static.wikia.nocookie.net/gensin-impact/images/e/e3/Kaedehara_Kazuha_Icon.png', 'Acer Palmatum', 'Inazuma', 'Resistance', 'Signora'),
     ('Yoimiya', 'Pyro', 'Bow', 5, '07-21', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Yoimiya', 'https://static.wikia.nocookie.net/gensin-impact/images/8/88/Yoimiya_Icon.png', 'Trifolium', 'Inazuma', 'Prosperity', 'Signora'),
