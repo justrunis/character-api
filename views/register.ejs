@@ -9,9 +9,9 @@
 
           <!-- Makes POST request to /register route -->
           <form action="/register" method="POST">
-            <% if (locals.error) { %>
+            <% if (locals.message) { %>
               <div class="alert alert-danger" role="alert">
-                <%= locals.error %>
+                <%= locals.message %>
               </div>
               <% } %>
                 <div class="form-group mt-2">
@@ -46,7 +46,7 @@
                   <button type="submit" class="btn btn-primary mt-2">Register</button>
                 </div>
                 <div class="form-group mt-2 d-flex justify-content-center align-items-center">
-                  <p>Already have an account? <a href="/login" style="color:dodgerblue">Log in</a></p>
+                  <p>Already have an account? <a href="/" style="color:dodgerblue">Log in</a></p>
                 </div>
           </form>
         </div>

@@ -65,6 +65,15 @@ const emailExists = async (email) => {
     return data.rows[0];
 };
 
+const usernameExists = async (username) => {
+    // Query the database to check if the email exists
+    const data = await query("SELECT * FROM users WHERE username=$1", [username]);
+   
+    // Return the user data if found, otherwise return false
+    if (data.rowCount == 0) return false;
+    return data.rows[0];
+}
+
 // Create a new user in the database
 const createUser = async (username, email, password, date_of_birth, gender) => {
     // Generate a salt and hash the password
@@ -98,11 +107,15 @@ passport.use("local-register", new LocalStrategy({ passReqToCallback: true }, as
         const { date_of_birth, gender, name } = req.body;
 
         // Check if the user already exists
-        const userExists = await emailExists(email);
+        const isEmail = await emailExists(email);
+        const isUsername = await usernameExists(name);
  
-        // If user exists, return false
-        if (userExists) {
-            return done(null, false);
+        // If user or email exists, return with message
+        if (isEmail) {
+            return done(null, false, {message: "Email is already in use"});
+        }
+        if(isUsername) {
+            return done(null, false, {message: "Username is already in use"});
         }
  
         // Create a new user and return the user object
@@ -118,15 +131,16 @@ passport.use("local-login", new LocalStrategy(async (email, password, done) => {
     try {
         // Find the user in the database
         const user = await emailExists(email);
+        const messageText = "Incorrect email or password";
         
-        // If user doesn't exist, return false
-        if (!user) return done(null, false);
+        // If user doesn't exist, return message
+        if (!user) return done(null, false, {message: messageText});
         
         // Check if the password matches
         const isMatch = await matchPassword(password, user.password);
         
-        // Return user object if password matches, otherwise return false
-        if (!isMatch) return done(null, false);
+        // Return user object if password matches, otherwise return message
+        if (!isMatch) return done(null, false, {message: messageText});
         return done(null, user);
     } catch (error) {
         return done(error, false);
@@ -159,11 +173,12 @@ passport.deserializeUser(async (id, done) => {
 async function query(sql, params) {
     const client = await db.connect();
     try {
-        // remove this log later
-        console.log("SQL:", sql, params);
+        // remove the logs later
         if (params) {
+            console.log("SQL:", sql, params);
             return await client.query(sql, params);
         } else {
+            console.log("SQL:", sql);
             return await client.query(sql);
         }
     } finally {
@@ -173,59 +188,35 @@ async function query(sql, params) {
 
 // Get all characters
 async function getCharacters() {
-    console.log("Getting characters...");
-    const result = await query("SELECT * FROM characters ORDER BY name");
+    const result = await query("SELECT * FROM characters ORDER BY name COLLATE \"C\"");
     return result.rows;
 }
 
-async function getCharactersByElement(data) {
-    const { name, sortWeapon, sortElement } = data;
-    
-    let sqlQuery = "SELECT * FROM characters WHERE";
-    const values = [];
-    
-    if (name) {
-        sqlQuery += " name = $1";
-        values.push(name);
-    }
-    
-    if (sortWeapon) {
-        if (values.length > 0) {
-            sqlQuery += " AND";
-        }
-        sqlQuery += " weapon = $2";
-        values.push(sortWeapon);
-    }
-    
-    if (sortElement) {
-        if (values.length > 0) {
-            sqlQuery += " AND";
-        }
-        sqlQuery += " element = $3";
-        values.push(sortElement);
-    }
-    
-    const result = await query(sqlQuery, values);
-    return result.rows;
+// Search for a character by name
+function searchCharacterByName(sortName, allData) {
+    if(sortName === undefined) return allData;
+    const sortedCharacters = allData.filter(character => character.name.toLowerCase().includes(sortName.toLowerCase()));
+    return sortedCharacters;
 }
 
-async function getCharactersByWeapon(weapon, characters) {
-    const result = await query("SELECT * FROM characters WHERE weapon = $1", [weapon]);
-    return result.rows;
+// Sort characters by element
+function getCharactersByElement(sortElement, allData) {
+    if(sortElement === undefined) return allData;
+    const sortedCharacters = allData.filter(character => character.element === sortElement);
+    return sortedCharacters;
+}
+
+// Sort characters by weapon
+function getCharactersByWeapon(sortWeapon, allData) {
+    if(sortWeapon === undefined) return allData;
+    const sortedCharacters = allData.filter(character => character.weapon === sortWeapon);
+    return sortedCharacters;
 }
 
 // Get character by id
 async function getCharacterById(id) {
     const result = await query("SELECT * FROM characters WHERE id = $1", [id]);
     return result.rows[0];
-}
-
-// Search for a character by name
-async function searchCharacterByName(name) {
-    name = name.toLowerCase();
-    const searchQuery = "SELECT * FROM characters WHERE LOWER(name) LIKE LOWER($1)";
-    const result = await query(searchQuery, [`%${name}%`]);
-    return result.rows;
 }
 
 let characters = getCharacters();
@@ -423,19 +414,22 @@ app.get('/birthday' , async (req, res) => {
 app.get('/search', async (req, res) => {
     if(req.isAuthenticated()) {
         console.log(req.query);
-        // let result = await searchCharacterByName(req.query.name);
+        let result = await getCharacters();
+        if(req.query.name){
+            result = searchCharacterByName(req.query.name, result);
+        }
     
-        // // Sort characters by element if sortElement is provided
-        // if (req.query.sortElement) {
-        //     result = await getCharactersByElement(req.query.sortElement, result);
-        // }
+        // Sort characters by element if sortElement is provided
+        if (req.query.sortElement) {
+            result = getCharactersByElement(req.query.sortElement, result);
+        }
         
-        // // Sort characters by weapon if sortWeapon is provided
-        // if (req.query.sortWeapon) {
-        //     result = await getCharactersByWeapon(req.query.sortWeapon, result);
-        // }
+        // Sort characters by weapon if sortWeapon is provided
+        if (req.query.sortWeapon) {
+            result = getCharactersByWeapon(req.query.sortWeapon, result);
+        }
         
-        // res.render('allCharacters.ejs', { characters: result });
+        res.render('allCharacters.ejs', { characters: result });
     } else {
         res.redirect("/");
     }
@@ -454,16 +448,30 @@ app.get('/register', (req, res) => {
 });
 
 // Login form submission route
-app.post('/login', passport.authenticate('local-login', {
-    failureRedirect: '/', // Redirect on failure
-    successRedirect: '/characters', // Redirect on success
-}));
+app.post('/login', function(req, res, next) {
+    passport.authenticate('local-login', function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { 
+            return res.render('login.ejs', { message: info.message });
+        }
+        req.logIn(user, function(err) {
+            if (err) { return next(err); }
+            return res.redirect('/characters');
+        });
+    })(req, res, next);
+});
  
 // Registration form submission route
-app.post("/register", passport.authenticate("local-register", {
-    failureRedirect: '/register', // Redirect if registration fails
-    successRedirect: '/characters', // Redirect on successful registration
-}));
+app.post('/register', function(req, res, next) {
+    passport.authenticate('local-register', function(err, email, info) {
+      if (err) { return next(err); }
+      if (!email) { 
+          res.render('register.ejs', {message: info.message});
+          return;
+      }
+      res.redirect('/characters');
+    })(req, res, next);
+  });
 
 // Logout route
 app.get("/logout",(req,res)=>{
