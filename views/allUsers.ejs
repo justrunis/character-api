@@ -1,0 +1,43 @@
+<%- include("partials/header.ejs") %>
+
+<h1 class="text-center">All users</h1>
+<% if(locals.users.length === 0) {%>
+  <h2>There are no users</h2>
+  <% } else { %>
+    <div class="container-fluid">
+      <table class="table table-striped">
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Username</th>
+          <th scope="col">Email</th>
+          <th scope="col">Date of Birth</th>
+          <th scope="col">Gender</th>
+          <th scope="col">Role</th>
+          <th scope="col">Created At</th>
+          <th scope="col">Updated At</th>
+          <th scope="col">Actions</th>
+        </tr>
+        <% users.forEach(function(user, index){ %>
+        <tr>
+          <td scope="row"><%= user.id %></td>
+          <td><%= user.username %></td>
+          <td><%= user.email %></td>
+          <td><%= user.date_of_birth.toISOString().split('T')[0] %></td>
+          <td><%= user.gender %></td>
+          <td><%= user.role %></td>
+          <td><%= user.created_at.toISOString().replace('T', ' ').split('.')[0] %></td>
+          <td><%= user.updated_at.toISOString().replace('T', ' ').split('.')[0] %></td>
+          <td>
+            <div class="container d-flex" aria-label="User Actions">
+              <a class="btn btn-primary" href="/editUser/<%= user.id %>">Edit</a>
+              <a class="btn btn-danger" href="/deleteUser/<%= user.id %>" 
+                  onclick="return confirm('Are you sure you want to remove this user?')">Remove</a>
+          </div>
+          </td>
+        </tr>
+        <%}) %>
+      </table>
+    <div>
+  <% } %>
+
+<%- include("partials/footer.ejs") %>

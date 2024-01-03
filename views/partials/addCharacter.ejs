@@ -1,123 +1,127 @@
-<div class="w3-container">
-    <button onclick="document.getElementById('id01').style.display='block'" class="btn btn-success mt-3">Add character</button>
+<% if(locals.user){ %>
+    <% if(locals.user.role === 'admin') {%>
+        <div class="w3-container">
+            <button onclick="document.getElementById('id01').style.display='block'" class="btn btn-success mt-3">Add character</button>
 
-    <div id="id01" class="w3-modal">
-        <div class="w3-modal-content">
-            <header class="w3-container w3-blue">
-                <span onclick="document.getElementById('id01').style.display='none'"
-                    class="w3-button w3-display-topright">&times;</span>
-                <h2 class="text-center">Add Character</h2>
-            </header>
-            <div class="container-fluid add-container">
-                <form action="/add" method="POST" class="needs-validation" validate>
-                    <div class="my-3">
-                        <label for="name" class="form-label">Name:</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
-                        <div class="invalid-feedback">Please enter a name.</div>
+            <div id="id01" class="w3-modal">
+                <div class="w3-modal-content">
+                    <header class="w3-container w3-blue">
+                        <span onclick="document.getElementById('id01').style.display='none'"
+                            class="w3-button w3-display-topright">&times;</span>
+                        <h2 class="text-center">Add Character</h2>
+                    </header>
+                    <div class="container-fluid add-container">
+                        <form action="/add" method="POST" class="needs-validation" validate>
+                            <div class="my-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" id="name" name="name" class="form-control" required>
+                                <div class="invalid-feedback">Please enter a name.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="weapon" class="form-label">Weapon:</label>
+                                <select id="weapon" name="weapon" class="form-select" required>
+                                    <option value="Sword">Sword</option>
+                                    <option value="Claymore">Claymore</option>
+                                    <option value="Bow">Bow</option>
+                                    <option value="Catalyst">Catalyst</option>
+                                    <option value="Polearm">Polearm</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="element" class="form-label">Element:</label>
+                                <select id="element" name="element" class="form-select" required>
+                                    <option value="Anemo">Anemo</option>
+                                    <option value="Geo">Geo</option>
+                                    <option value="Electro">Electro</option>
+                                    <option value="Hydro">Hydro</option>
+                                    <option value="Pyro">Pyro</option>
+                                    <option value="Cryo">Cryo</option>
+                                    <option value="Dendro">Dendro</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="rarity" class="form-label">Rarity:</label>
+                                <select id="rarity" name="rarity" class="form-select" required>
+                                    <option value="4">4 star</option>
+                                    <option value="5">5 star</option>
+                                </select>
+                            </div>
+
+
+
+                            <div class="mb-3">
+                                <label for="birthday" class="form-label">Birthday:</label>
+                                <input type="date" id="birthday" name="birthday" class="form-control" required>
+                                <div class="invalid-feedback">Please enter a birthday.</div>
+                            </div>
+
+                            <script>
+                                var year = new Date().getFullYear();
+                                document.getElementById('birthday').setAttribute("min", year + "-01-01");
+                                document.getElementById('birthday').setAttribute("max", year + "-12-31");
+                            </script>
+
+                            <div class="mb-3">
+                                <label for="region" class="form-label">Region:</label>
+                                <select id="region" name="region" class="form-select" required>
+                                    <option selected value="Other">Other</option>
+                                    <option value="Mondstadt">Mondstadt</option>
+                                    <option value="Liyue">Liyue</option>
+                                    <option value="Inazuma">Inazuma</option>
+                                    <option value="Sumeru">Sumeru</option>
+                                    <option value="Fontaine">Fontaine</option>
+                                    <option value="Natlan">Natlan</option>
+                                    <option value="Snezhnaya">Snezhnaya</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a region.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="wiki_url" class="form-label">Wiki URL:</label>
+                                <input type="url" id="wiki_url" name="wiki_url" class="form-control">
+                                <div class="invalid-feedback">Please enter a valid URL.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="image_url" class="form-label">Image:</label>
+                                <input type="url" id="image_url" name="image_url" class="form-control">
+                                <div class="invalid-feedback">Please select an image file.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="affiliation" class="form-label">Affiliation:</label>
+                                <input type="text" id="affiliation" name="affiliation" class="form-control">
+                                <div class="invalid-feedback">Please enter an affiliation.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="constellation" class="form-label">Constellation:</label>
+                                <input type="text" id="constellation" name="constellation"
+                                    class="form-control">
+                                <div class="invalid-feedback">Please enter a constellation.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="talent_material_type" class="form-label">Talent Material Type:</label>
+                                <input type="text" id="talent_material_type" name="talent_material_type"
+                                    class="form-control">
+                                <div class="invalid-feedback">Please enter a talent material type.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="boss_material_type" class="form-label">Boss Material Type:</label>
+                                <input type="text" id="boss_material_type" name="boss_material_type" class="form-control">
+                                <div class="invalid-feedback">Please enter a boss material type.</div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add Character</button>
+                        </form>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="weapon" class="form-label">Weapon:</label>
-                        <select id="weapon" name="weapon" class="form-select" required>
-                            <option value="Sword">Sword</option>
-                            <option value="Claymore">Claymore</option>
-                            <option value="Bow">Bow</option>
-                            <option value="Catalyst">Catalyst</option>
-                            <option value="Polearm">Polearm</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="element" class="form-label">Element:</label>
-                        <select id="element" name="element" class="form-select" required>
-                            <option value="Anemo">Anemo</option>
-                            <option value="Geo">Geo</option>
-                            <option value="Electro">Electro</option>
-                            <option value="Hydro">Hydro</option>
-                            <option value="Pyro">Pyro</option>
-                            <option value="Cryo">Cryo</option>
-                            <option value="Dendro">Dendro</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="rarity" class="form-label">Rarity:</label>
-                        <select id="rarity" name="rarity" class="form-select" required>
-                            <option value="4">4 star</option>
-                            <option value="5">5 star</option>
-                        </select>
-                    </div>
-
-
-
-                    <div class="mb-3">
-                        <label for="birthday" class="form-label">Birthday:</label>
-                        <input type="date" id="birthday" name="birthday" class="form-control" required>
-                        <div class="invalid-feedback">Please enter a birthday.</div>
-                    </div>
-
-                    <script>
-                        var year = new Date().getFullYear();
-                        document.getElementById('birthday').setAttribute("min", year + "-01-01");
-                        document.getElementById('birthday').setAttribute("max", year + "-12-31");
-                    </script>
-
-                    <div class="mb-3">
-                        <label for="region" class="form-label">Region:</label>
-                        <select id="region" name="region" class="form-select" required>
-                            <option selected value="Other">Other</option>
-                            <option value="Mondstadt">Mondstadt</option>
-                            <option value="Liyue">Liyue</option>
-                            <option value="Inazuma">Inazuma</option>
-                            <option value="Sumeru">Sumeru</option>
-                            <option value="Fontaine">Fontaine</option>
-                            <option value="Natlan">Natlan</option>
-                            <option value="Snezhnaya">Snezhnaya</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a region.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="wiki_url" class="form-label">Wiki URL:</label>
-                        <input type="url" id="wiki_url" name="wiki_url" class="form-control">
-                        <div class="invalid-feedback">Please enter a valid URL.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="image_url" class="form-label">Image:</label>
-                        <input type="url" id="image_url" name="image_url" class="form-control">
-                        <div class="invalid-feedback">Please select an image file.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="affiliation" class="form-label">Affiliation:</label>
-                        <input type="text" id="affiliation" name="affiliation" class="form-control">
-                        <div class="invalid-feedback">Please enter an affiliation.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="constellation" class="form-label">Constellation:</label>
-                        <input type="text" id="constellation" name="constellation"
-                            class="form-control">
-                        <div class="invalid-feedback">Please enter a constellation.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="talent_material_type" class="form-label">Talent Material Type:</label>
-                        <input type="text" id="talent_material_type" name="talent_material_type"
-                            class="form-control">
-                        <div class="invalid-feedback">Please enter a talent material type.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="boss_material_type" class="form-label">Boss Material Type:</label>
-                        <input type="text" id="boss_material_type" name="boss_material_type" class="form-control">
-                        <div class="invalid-feedback">Please enter a boss material type.</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Add Character</button>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+    <% } %>
+<% } %>

@@ -72,9 +72,13 @@
                         </div>
                         <div class="container d-flex justify-content-center align-items-center" aria-label="Character Actions">
                             <a class="btn btn-primary btn-md card-button" href="/character/<%= character.id %>">View</a>
-                            <a class="btn btn-primary btn-md card-button" href="/editCharacter/<%= character.id %>">Edit</a>
-                            <a class="btn btn-danger btn-md card-button" href="/deleteCharacter/<%= character.id %>" 
-                                onclick="return confirm('Are you sure you want to remove this character?')">Remove</a>
+                            <% if(locals.user) {%>
+                                <% if(locals.user.role === 'admin'){ %>
+                                <a class="btn btn-primary btn-md card-button" href="/editCharacter/<%= character.id %>">Edit</a>
+                                <a class="btn btn-danger btn-md card-button" href="/deleteCharacter/<%= character.id %>" 
+                                    onclick="return confirm('Are you sure you want to remove this character?')">Remove</a>
+                                <% } %>
+                            <% } %>
                         </div>
                     </div>
                 </div>

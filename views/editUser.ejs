@@ -1,0 +1,37 @@
+<%- include("partials/header.ejs") %>
+
+<div class="container-fluid edit-container col-md-6">
+    <h1>Edit users <%= user.username %> information</h1>
+    <form id="edit-form" action="/user/<%= user.id %>" method="POST" class="needs-validation" validate>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>">
+        </div>
+        <div class="form-group">
+            <label for="date">Date of birth</label>
+            <input type="date" class="form-control" id="date" name="date" value="<%= user.date_of_birth.toISOString().split('T')[0] %>">
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select class="form-control" id="gender" name="gender">
+                <option value="other" <%= user.gender === 'other' ? 'selected' : '' %>>Other</option>
+                <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Male</option>
+                <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Female</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select class="form-control" id="role" name="role">
+                <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
+                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+    </form>
+</div>
+
+<%- include("partials/footer.ejs") %>

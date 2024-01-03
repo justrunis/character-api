@@ -24,23 +24,33 @@
   
         <div class="collapse navbar-collapse" id="navbarsExample04">
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href='/birthday'>Closest birthday</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href='/characters'>Characters</a>
-            </li>
+            <% if(locals.user){ %>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/birthday'>Closest birthday</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/characters'>Characters</a>
+              </li>
+              <% if(locals.user.role === 'admin'){ %>
+                <li class="nav-item">
+                  <a class="nav-link" aria-current="page" href='/users'>All users</a>
+                </li>
+              <% } %>
+            <% } %>
           </ul>
           <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href='/'>Log in</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href='/register'>Register</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href='/logout'>Log out</a>
-            </li>
+            <% if(locals.user){ %>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/logout'>Log out</a>
+              </li>
+            <%} else {%>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/'>Log in</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/register'>Register</a>
+              </li>
+              <% } %>
           </ul>
         </div>
       </div>

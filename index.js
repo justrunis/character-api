@@ -17,21 +17,21 @@ const characterAmount = 5;
 
 // Change to your own database
 // Windows setup
-const db = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "characters",
-    password: "dbpassword123",
-    port: 5432,
-});
-// Linux setup
 // const db = new Pool({
-//     user: "localhost",
+//     user: "postgres",
 //     host: "localhost",
 //     database: "characters",
 //     password: "dbpassword123",
-//     port: 5433,
+//     port: 5432,
 // });
+// Linux setup
+const db = new Pool({
+    user: "localhost",
+    host: "localhost",
+    database: "characters",
+    password: "dbpassword123",
+    port: 5433,
+});
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -188,9 +188,22 @@ async function query(sql, params) {
 
 // Get all characters
 async function getCharacters() {
-    const result = await query("SELECT * FROM characters ORDER BY name COLLATE \"C\"");
+    const result = await query("SELECT * FROM characters ORDER BY name");
     return result.rows;
 }
+
+// Get all users
+async function getUsers(){
+    const result = await query("SELECT * FROM users ORDER BY id");
+    return result.rows;
+}
+
+// Get user by id
+async function getUserById(id){
+    const result = await query("SELECT * FROM users WHERE id = $1", [id]);
+    return result.rows[0];
+}
+
 
 // Search for a character by name
 function searchCharacterByName(sortName, allData) {
@@ -220,60 +233,65 @@ async function getCharacterById(id) {
 }
 
 let characters = getCharacters();
+let users = getUsers();
 
 // Get add page
 app.get("/addCharacter", async (req, res) => {
-    if(req.isAuthenticated()) {
+    if(req.isAuthenticated() && req.user.role === "admin") {
         res.render("addCharacter.ejs");
     }
     else{
-        res.redirect("/");
+        res.redirect("/characters");
     }
 });
 
 // Create a new character
 app.post("/add", async (req, res) => {
-    try {
-        const {
-            name,
-            element,
-            weapon,
-            rarity,
-            birthday,
-            region,
-            wiki_url,
-            image_url,
-            constellation,
-            affiliation,
-            talent_material_type,
-            boss_material_type
-        } = req.body;
+    if(req.isAuthenticated() && req.user.role === "admin"){
+        try {
+            const {
+                name,
+                element,
+                weapon,
+                rarity,
+                birthday,
+                region,
+                wiki_url,
+                image_url,
+                constellation,
+                affiliation,
+                talent_material_type,
+                boss_material_type
+            } = req.body;
 
-        const sqlQuery = `INSERT INTO characters (name, element, weapon, rarity, birthday, region, wiki_url, image_url, constellation, affiliation, talent_material_type, boss_material_type) 
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`;
+            const sqlQuery = `INSERT INTO characters (name, element, weapon, rarity, birthday, region, wiki_url, image_url, constellation, affiliation, talent_material_type, boss_material_type) 
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`;
 
-        const values = [
-            name,
-            element,
-            weapon,
-            rarity,
-            birthday.slice(5, birthday.length),
-            region,
-            wiki_url,
-            image_url,
-            constellation,
-            affiliation,
-            talent_material_type,
-            boss_material_type
-        ];
+            const values = [
+                name,
+                element,
+                weapon,
+                rarity,
+                birthday.slice(5, birthday.length),
+                region,
+                wiki_url,
+                image_url,
+                constellation,
+                affiliation,
+                talent_material_type,
+                boss_material_type
+            ];
 
 
-        await query(sqlQuery, values);
-        
-        res.redirect("/");
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
+            await query(sqlQuery, values);
+            
+            res.redirect("/characters");
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else {
+        res.redirect("/characters");
     }
 });
 
@@ -281,8 +299,9 @@ app.post("/add", async (req, res) => {
 app.get("/characters", async (req, res) => {
     if(req.isAuthenticated()) {
         try {
+            console.log(req.user.role);
             const characters = await getCharacters();
-            res.render('allCharacters.ejs', { characters });
+            res.render('allCharacters.ejs', { characters: characters, user: req.user });
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: error.message });
@@ -293,13 +312,28 @@ app.get("/characters", async (req, res) => {
     }
 });
 
+// Get all users
+app.get("/users", async (req, res) =>{
+    if(req.isAuthenticated() && req.user.role === "admin"){
+        try {
+            const users = await getUsers();
+            res.render('allUsers.ejs', {users: users, user: req.user});
+        } catch (error){
+            console.log(error);
+            res.status(500).json({error: error.message});
+        }
+    } else{
+        res.redirect('/characters');
+    }
+});
+
 // Get edit page
 app.get("/edit/:id", (req, res) => {
-    if(req.isAuthenticated()){
+    if(req.isAuthenticated() && req.user.role === "admin"){
         res.render("editCharacter.ejs", { character: characters[req.params.id] });
     }
     else{
-        res.redirect("/");
+        res.redirect("/characters");
     }
 });
 
@@ -309,7 +343,7 @@ app.get("/character/:id", async (req, res) => {
         try {
             const character = await getCharacterById(parseInt(req.params.id));
             if (character) {
-                res.render("viewCharacter.ejs", { character });
+                res.render("viewCharacter.ejs", { character: character, user: req.user });
             } else {
                 res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
             }
@@ -322,13 +356,13 @@ app.get("/character/:id", async (req, res) => {
     }
 });
 
-// Get edit page
+// Get edit character page
 app.get("/editCharacter/:id", async (req, res) => {
-    if(req.isAuthenticated()) {
+    if(req.isAuthenticated() && req.user.role === "admin") {
         try {
             const character = await getCharacterById(parseInt(req.params.id));
             if (character) {
-                res.render("editCharacter.ejs", { character });
+                res.render("editCharacter.ejs", { character: character, user: req.user });
             } else {
                 res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
             }
@@ -337,23 +371,59 @@ app.get("/editCharacter/:id", async (req, res) => {
             res.status(500).json({ message: error.message });
         }
     } else {
-        res.redirect("/");
+        res.redirect("/characters");
     }
 });
 
-// Delete a character
-app.get("/deleteCharacter/:id", async (req, res) => {
-    if(req.isAuthenticated()){
+// Get edit user page
+app.get("/editUser/:id", async (req, res) => {
+    if(req.isAuthenticated() && req.user.role === "admin") {
         try {
-            const id = parseInt(req.params.id);
-            await query("DELETE FROM characters WHERE id = $1", [id]);
-            res.redirect("/");
+            let user = await getUserById(parseInt(req.params.id));
+            console.log(user);
+            if (user) {
+                res.render("editUser.ejs", { user });
+            } else {
+                res.status(404).json({ message: `User with id: ${req.params.id} not found` });
+            }
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: error.message });
         }
     } else {
-        res.redirect("/");
+        res.redirect("/characters");
+    }
+});
+
+// Delete a character
+app.get("/deleteCharacter/:id", async (req, res) => {
+    if(req.isAuthenticated() && req.user.role === "admin"){
+        try {
+            const id = parseInt(req.params.id);
+            await query("DELETE FROM characters WHERE id = $1", [id]);
+            res.redirect("/characters");
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else {
+        res.redirect("/characters");
+    }
+});
+
+// Delete a user
+app.get("/deleteUser/:id", async (req, res) => {
+    if(req.isAuthenticated() && req.user.role === "admin"){
+        try {
+            const id = parseInt(req.params.id);
+            await query("DELETE FROM users WHERE id = $1", [id]);
+            res.redirect("/users");
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else {
+        res.redirect("/characters");
     }
 });
 
@@ -385,9 +455,40 @@ app.post("/character/:id", async (req, res) => {
 
             await query(updateQuery, values);
 
-            res.redirect("/");
+            res.redirect("/characters");
         } else {
             res.status(404).json({ message: `Character with id: ${id} not found for update` });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.post("/user/:id", async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const user = (await users).find((user) => user.id === id);
+        const getUserByIdQuery = "SELECT * FROM users WHERE id = $1";
+        const currentUser = await query(getUserByIdQuery, [id]);
+
+        if (user) {
+            const updateQuery = `UPDATE users SET username = $1, email = $2, date_of_birth = $3, gender = $4, role = $5, updated_at = $6 WHERE id = $7`;
+            const values = [
+                req.body.username || currentUser.rows[0].username,
+                req.body.email || currentUser.rows[0].email,
+                req.body.date_of_birth || currentUser.rows[0].date_of_birth,
+                req.body.gender || currentUser.rows[0].gender,
+                req.body.role || currentUser.rows[0].role,
+                new Date().toISOString(),
+                id
+            ];
+
+            await query(updateQuery, values);
+            res.redirect("/users");
+        }
+        else{
+            res.status(404).json({ message: `User with id: ${id} not found for update` });
         }
     } catch (error) {
         console.log(error);
@@ -399,7 +500,7 @@ app.post("/character/:id", async (req, res) => {
 app.get('/birthday' , async (req, res) => {
     if(req.isAuthenticated()) {
         try {
-            res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters(), characterAmount) });
+            res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters(), characterAmount), user: req.user });
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: error.message });
@@ -410,7 +511,6 @@ app.get('/birthday' , async (req, res) => {
 });
 
 // Search/Sort for a character
-// Todo: fix the sort
 app.get('/search', async (req, res) => {
     if(req.isAuthenticated()) {
         console.log(req.query);
@@ -429,7 +529,7 @@ app.get('/search', async (req, res) => {
             result = getCharactersByWeapon(req.query.sortWeapon, result);
         }
         
-        res.render('allCharacters.ejs', { characters: result });
+        res.render('allCharacters.ejs', { characters: result, user: req.user });
     } else {
         res.redirect("/");
     }
