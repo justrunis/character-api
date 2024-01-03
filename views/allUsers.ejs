@@ -22,7 +22,7 @@
           <td scope="row"><%= user.id %></td>
           <td><%= user.username %></td>
           <td><%= user.email %></td>
-          <td><%= user.date_of_birth.toISOString().split('T')[0] %></td>
+            <td><%= user.date_of_birth.toLocaleDateString() %></td>
           <td><%= user.gender %></td>
           <td><%= user.role %></td>
           <td><%= user.created_at.toISOString().replace('T', ' ').split('.')[0] %></td>

@@ -12,8 +12,11 @@
             <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>">
         </div>
         <div class="form-group">
-            <label for="date">Date of birth</label>
-            <input type="date" class="form-control" id="date" name="date" value="<%= user.date_of_birth.toISOString().split('T')[0] %>">
+            <label for="date_of_birth">Date of birth</label>
+            <!-- Temp fix that needs fixing later with some weird dates -->
+            <% const currentDate = new Date(user.date_of_birth); %>
+            <% currentDate.setDate(currentDate.getDate() + 1); %>
+            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" value="<%= currentDate.toISOString().split('T')[0] %>">
         </div>
         <div class="form-group">
             <label for="gender">Gender</label>

@@ -41,6 +41,9 @@
           <ul class="navbar-nav ml-auto">
             <% if(locals.user){ %>
               <li class="nav-item">
+                <a class="nav-link" aria-current="page" href='/profile/<%= locals.user.id %>'>My Profile</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" aria-current="page" href='/logout'>Log out</a>
               </li>
             <%} else {%>

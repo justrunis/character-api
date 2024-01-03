@@ -1,0 +1,136 @@
+<%- include("partials/header.ejs") %>
+
+<div class="container-fluid col-md-6">
+    <%  let birthday = user.date_of_birth.getTime();
+        let date = new Date(birthday);
+        let formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    %>
+    <div class="card mt-2">
+        <h2>My profile</h2>
+        <div class="card-body">
+            <a class="btn btn-primary edit">Edit</a>
+            <form id="profileForm" action="/profile/<%= user.id %>" method="POST">
+                <input type="hidden" name="test" value="some kind of magic">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Username</td>
+                            <td><span id="username"><%= user.username %></span></td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td><span id="email"><%= user.email %></span></td>
+                        </tr>
+                        <tr>
+                            <td>Date of Birth</td>
+                            <td><span id="date_of_birth"><%= formattedDate %></span></td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td><span id="gender"><%= user.gender.charAt(0).toUpperCase() + user.gender.slice(1) %></span></td>
+                        </tr>
+                        <tr>
+                            <td>Role</td>
+                            <td><span id="role"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button style="display: none;"  type="submit" class="btn btn-primary save">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var isEditing = false;
+    let dateValue = <%=user.date_of_birth.getTime()%>;
+    let date = new Date(dateValue);
+    let formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+
+    document.querySelector('.edit').addEventListener('click', function() {
+        if (isEditing) {
+            // Switch to display form
+            document.querySelector('.save').style.display = 'block';
+            document.querySelectorAll('input, select').forEach(function(input) {
+                var span = document.createElement('span');
+                span.id = input.id;
+                span.textContent = input.value;
+                if(input.id === 'date_of_birth'){
+                    span.textContent = formattedDate;
+                }
+                input.parentNode.replaceChild(span, input);
+            });
+            document.querySelector('.edit').textContent = 'Edit';
+            document.querySelector('.save').style.display = 'none';
+        } else {
+            // Switch to edit form
+            document.querySelector('.save').style.display = 'block';
+            document.querySelectorAll('span').forEach(function(span) {
+                var value = span.textContent;
+                var input;
+
+                switch (span.id) {
+                    case 'date_of_birth':
+                        input = document.createElement('input');
+                        input.type = 'date';
+                        input.value = formattedDate;
+                        input.name = span.id;
+                        input.classList.add('form-control');
+                        break;
+                    case 'gender':
+                        input = document.createElement('select');
+                        input.classList.add('form-control');
+                        input.name = span.id;
+                        var options = ['Male', 'Female', 'Other'];
+                        options.forEach(function(option) {
+                            var optionElement = document.createElement('option');
+                            optionElement.value = option;
+                            optionElement.textContent = option;
+                            if (option === value) {
+                                optionElement.selected = true;
+                            }
+                            input.appendChild(optionElement);
+                        });
+                        break;
+                    default:
+                        return;
+                }
+
+                input.id = span.id;
+                span.parentNode.replaceChild(input, span);
+            });
+            document.querySelector('.edit').textContent = 'Cancel';
+            document.querySelector('.save').style.display = 'block';
+        }
+
+        isEditing = !isEditing;
+    });
+
+    // document.querySelector('.save').addEventListener('click', function() {
+    //     var formData = new FormData(document.getElementById('profileForm'));
+
+    //     var xhr = new XMLHttpRequest();
+    //     xhr.open('POST', '/update-profile', true);
+    //     xhr.onload = function() {
+    //         if (xhr.status === 200) {
+    //             var response = JSON.parse(xhr.responseText);
+    //             document.getElementById('email').textContent = response.email;
+    //             document.getElementById('date_of_birth').textContent = response.date_of_birth;
+    //             document.getElementById('gender').textContent = response.gender;
+
+    //             document.querySelectorAll('input, select').forEach(function(input) {
+    //                 var span = document.createElement('span');
+    //                 span.id = input.id;
+    //                 span.textContent = input.value;
+    //                 input.parentNode.replaceChild(span, input);
+    //             });
+    //             document.querySelector('.edit').textContent = 'Edit';
+    //             document.querySelector('.save').style.display = 'none';
+    //             isEditing = false;
+    //         }
+    //     };
+    //     xhr.send(formData);
+    // });
+</script>
+
+<%- include("partials/footer.ejs") %>

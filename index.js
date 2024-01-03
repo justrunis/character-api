@@ -356,6 +356,25 @@ app.get("/character/:id", async (req, res) => {
     }
 });
 
+// Get users profile
+app.get("/profile/:id", async (req, res) => {
+    if(req.isAuthenticated() && req.user.id === parseInt(req.params.id)){
+        try {
+            const user = await getUserById(parseInt(req.params.id));
+            if(user) {
+                res.render("profile.ejs", { user: user});
+            } else {
+                res.status(404).json({ message: `User with id: ${req.params.id} not found` });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else{
+        res.redirect("/");
+    }
+});
+
 // Get edit character page
 app.get("/editCharacter/:id", async (req, res) => {
     if(req.isAuthenticated() && req.user.role === "admin") {
@@ -465,34 +484,69 @@ app.post("/character/:id", async (req, res) => {
     }
 });
 
+// Update a user
 app.post("/user/:id", async (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const user = (await users).find((user) => user.id === id);
-        const getUserByIdQuery = "SELECT * FROM users WHERE id = $1";
-        const currentUser = await query(getUserByIdQuery, [id]);
+    if(req.isAuthenticated() && req.user.role === "admin"){
+        try {
+            const id = parseInt(req.params.id);
+            const user = (await users).find((user) => user.id === id);
+            const getUserByIdQuery = "SELECT * FROM users WHERE id = $1";
+            const currentUser = await query(getUserByIdQuery, [id]);
+            console.log("DATE OF BIRTH "+req.body.date_of_birth);
 
-        if (user) {
-            const updateQuery = `UPDATE users SET username = $1, email = $2, date_of_birth = $3, gender = $4, role = $5, updated_at = $6 WHERE id = $7`;
-            const values = [
-                req.body.username || currentUser.rows[0].username,
-                req.body.email || currentUser.rows[0].email,
-                req.body.date_of_birth || currentUser.rows[0].date_of_birth,
-                req.body.gender || currentUser.rows[0].gender,
-                req.body.role || currentUser.rows[0].role,
-                new Date().toISOString(),
-                id
-            ];
+            if (user) {
+                const updateQuery = `UPDATE users SET username = $1, email = $2, date_of_birth = $3, gender = $4, role = $5, updated_at = $6 WHERE id = $7`;
+                const values = [
+                    req.body.username || currentUser.rows[0].username,
+                    req.body.email || currentUser.rows[0].email,
+                    req.body.date_of_birth || currentUser.rows[0].date_of_birth,
+                    req.body.gender || currentUser.rows[0].gender,
+                    req.body.role || currentUser.rows[0].role,
+                    new Date().toISOString(),
+                    id
+                ];
 
-            await query(updateQuery, values);
-            res.redirect("/users");
+                await query(updateQuery, values);
+                res.redirect("/users");
+            }
+            else{
+                res.status(404).json({ message: `User with id: ${id} not found for update` });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
         }
-        else{
-            res.status(404).json({ message: `User with id: ${id} not found for update` });
+}
+});
+
+// Update a user's profile
+app.post("/profile/:id", async (req, res) => {
+    if(req.isAuthenticated() && req.user.id === parseInt(req.params.id)){
+        try {
+            console.log(req);
+            const id = parseInt(req.params.id);
+            const user = (await users).find((user) => user.id === id);
+            const getUserByIdQuery = "SELECT * FROM users WHERE id = $1";
+            const currentUser = await query(getUserByIdQuery, [id]);
+
+            if(user){
+                const updateQuery = `UPDATE users SET date_of_birth = $1, gender = $2, updated_at = $3 WHERE id = $4`;
+                const values = [
+                    req.body.date_of_birth ? req.body.date_of_birth : currentUser.rows[0].date_of_birth,
+                    req.body.gender ? req.body.gender : currentUser.rows[0].gender,
+                    new Date().toISOString(),
+                    id
+                ];
+                await query(updateQuery, values);
+                res.redirect("/profile/"+id);
+            }else{
+                res.status(404).json({ message: `User with id: ${id} not found for update` });
+            }
+            
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
     }
 });
 
