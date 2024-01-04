@@ -3,14 +3,14 @@
 
 <div class="container-fluid justify-content-center align-items-center">
         <form class="my-2" action="/search" method="GET">
-            <div class="row my-2">
-                <div class="col-md-12">
+            <div class="row my-2 mx-0 card d-flex flex-wrap flex-row justify-content-center">
+                <div class="col-md-2">
                     <label for="name">Search by character name</label>
                     <div class="input-group">
                         <input type="text" class="form-control" name="name" placeholder="Enter character name">
                     </div>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-2">
                     <label for="sortElement">Search by element</label>
                     <div class="input-group">
                         <select id="sortElement" name="sortElement" class="form-control">
@@ -25,7 +25,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-2">
                     <label for="sortWeapon">Search by weapon</label>
                     <div class="input-group">
                         <select id="sortWeapon" name="sortWeapon" class="form-control">
@@ -38,9 +38,9 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">Search</button>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
             </div>
         </form>
 
@@ -49,7 +49,7 @@
         <% } else { %>
             <% characters.forEach(function(character, index) { %>
                 <% if (index % 3 === 0) { %>
-                    <div class="row">
+                    <div class="row mx-2">
                 <% } %>
                 <div class="col-md-4 my-2">
                     <div class="card my-2">
@@ -88,6 +88,18 @@
                 <% } %>
             <% }); %>
         <% } %>
+        <!-- <div class="d-flex justify-content-center align-items-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div> -->
     </div>
+
 
 <%- include("partials/footer.ejs") %>

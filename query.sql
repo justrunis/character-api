@@ -28,6 +28,16 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create table for character ranking
+CREATE TABLE character_ranking (
+    id SERIAL PRIMARY KEY,
+    character_id INT NOT NULL,
+    user_id INT NOT NULL,
+    ranking VARCHAR(2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 ALTER TABLE users
 ADD COLUMN role VARCHAR(50) NOT NULL
 
@@ -49,3 +59,55 @@ VALUES
     ('Yoimiya', 'Pyro', 'Bow', 5, '07-21', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Yoimiya', 'https://static.wikia.nocookie.net/gensin-impact/images/8/88/Yoimiya_Icon.png', 'Trifolium', 'Inazuma', 'Prosperity', 'Signora'),
     ('Sayu', 'Anemo', 'Claymore', 4, '10-19', 'Inazuma', 'https://genshin-impact.fandom.com/wiki/Sayu', 'https://static.wikia.nocookie.net/gensin-impact/images/2/22/Sayu_Icon.png', 'Nyctereutes Minor', 'Inazuma', 'Prosperity', 'Signora'),
     ('Layla', 'Cryo', 'Sword', 4, '12-19', 'Sumeru', 'https://genshin-impact.fandom.com/wiki/Layla', 'https://static.wikia.nocookie.net/gensin-impact/images/1/1a/Layla_Icon.png', 'Luscinia', 'Rtawahist', 'Ingenuity', 'Scaramouche')
+
+
+-- [
+--   {
+--     id: 7,
+--     name: 'Diluc',
+--     element: 'Pyro',
+--     weapon: 'Claymore',
+--     rarity: 5,
+--     birthday: '04-30',
+--     region: 'Mondstadt',
+--     wiki_url: 'https://genshin-impact.fandom.com/wiki/Diluc',
+--     image_url: 'https://static.wikia.nocookie.net/gensin-impact/images/3/3d/Diluc_Icon.png',
+--     constellation: 'Noctua',
+--     affiliation: 'Knights of Favonius',
+--     talent_material_type: 'Resistance',
+--     boss_material_type: 'Dvalin'
+--   },
+--   {
+--     id: 14,
+--     name: 'Ganyu',
+--     element: 'Cryo',
+--     weapon: 'Bow',
+--     rarity: 5,
+--     birthday: '12-02',
+--     region: 'Liyue',
+--     wiki_url: 'https://genshin-impact.fandom.com/wiki/Ganyu',
+--     image_url: 'https://static.wikia.nocookie.net/gensin-impact/images/7/79/Ganyu_Icon.png',
+--     constellation: 'Sinae Unicornis',
+--     affiliation: 'Liyue Qixing',
+--     talent_material_type: 'Prosperity',
+--     boss_material_type: 'Andrius'
+--   },
+-- ]
+-- [
+--   {
+--     id: 1,
+--     character_id: 7,
+--     user_id: 5,
+--     ranking: 'A',
+--     created_at: 2024-01-04T05:45:53.385Z,
+--     updated_at: 2024-01-04T05:55:58.828Z
+--   },
+--   {
+--     id: 2,
+--     character_id: 7,
+--     user_id: 3,
+--     ranking: 'A',
+--     created_at: 2024-01-04T06:09:05.063Z,
+--     updated_at: 2024-01-04T06:25:58.590Z
+--   }
+-- ]

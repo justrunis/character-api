@@ -24,4 +24,42 @@ export function getCharactersWithClosestBirthdays(allCharacters, characterAmount
     }
     return allCharacters.filter(character => character.daysUntilBirthday >= 0).sort((a, b) => a.birthdayDate - b.birthdayDate).slice(0, characterAmount);
 }
-export default getCharactersWithClosestBirthdays;
+
+/**
+ * 
+ * @param {*} allCharacters 
+ * @param {*} allRatings 
+ */
+
+export function getAllCharactersAverageRating(allCharacters, allRatings) {
+
+    const reverseRatingValues = [
+        'SS', //0
+        'S', //1
+        'A', //2
+        'B',
+        'C',
+        'D'
+    ].reverse();
+
+    let charactersAverageRating = [];
+    for (let i = 0; i < allCharacters.length; i++) {
+        let characterAverageRating = 0;
+        let characterRatings = Array.isArray(allRatings) ? allRatings.filter(rating => rating.character_id === allCharacters[i].id) : [];
+        if (characterRatings.length > 0) {
+            characterAverageRating = characterRatings.reduce((total, current) => total + reverseRatingValues.indexOf(current.ranking), 0);
+            // for (let j = 0; j < characterRatings.length; j++) {
+            //     characterAverageRating += ratingValues[characterRatings[j].ranking];
+            // }
+            characterAverageRating = Math.round(characterAverageRating / characterRatings.length);
+            charactersAverageRating.push({ character: allCharacters[i], rating: reverseRatingValues[characterAverageRating] });
+        }
+    }
+    console.log(charactersAverageRating);
+    return charactersAverageRating;
+}
+
+export default {
+    getCharactersWithClosestBirthdays,
+    getAllCharactersAverageRating
+};

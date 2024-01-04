@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
-import { getCharactersWithClosestBirthdays } from "./lib.js";
+import { getCharactersWithClosestBirthdays, getAllCharactersAverageRating } from "./lib.js";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
@@ -232,15 +232,22 @@ async function getCharacterById(id) {
     return result.rows[0];
 }
 
-let characters = getCharacters();
-let users = getUsers();
+async function getCharacterRankingById(character_id, user_id) {
+    console.log("CHARACTER ID " + character_id);
+    console.log("USER ID " + user_id);
+    const result = await query("SELECT ranking FROM character_ranking WHERE character_id = $1 AND user_id = $2", [character_id, user_id]);
+    console.log("RANKING ", result.rows[0]?.ranking);
+    return result.rows[0]?.ranking;
+}
+
+let characters = await getCharacters();
+let users = await getUsers();
 
 // Get add page
 app.get("/addCharacter", async (req, res) => {
-    if(req.isAuthenticated() && req.user.role === "admin") {
+    if (req.isAuthenticated() && req.user.role === "admin") {
         res.render("addCharacter.ejs");
-    }
-    else{
+    } else {
         res.redirect("/characters");
     }
 });
@@ -343,7 +350,9 @@ app.get("/character/:id", async (req, res) => {
         try {
             const character = await getCharacterById(parseInt(req.params.id));
             if (character) {
-                res.render("viewCharacter.ejs", { character: character, user: req.user });
+                const characterRanking = await getCharacterRankingById(character.id, req.user.id);
+                console.log("RANK " + characterRanking);
+                res.render("viewCharacter.ejs", { character: character, user: req.user, characterRanking: characterRanking });
             } else {
                 res.status(404).json({ message: `Character with id: ${req.params.id} not found` });
             }
@@ -411,6 +420,25 @@ app.get("/editUser/:id", async (req, res) => {
         }
     } else {
         res.redirect("/characters");
+    }
+});
+
+app.get("/tierlist", async (req, res) => {
+    if(req.isAuthenticated()) {
+        try {
+            let characterWithRatings = getAllCharactersAverageRating(await getCharacters(), (await query("SELECT * FROM character_ranking")).rows);
+            console.log("AVERAGE RATINGS:");
+            characterWithRatings.forEach((character) => {
+                console.log("Character: " + character.character.name);
+                console.log("Rating: " + character.rating);
+            });
+            res.render("characterTierlist.ejs", { characters: characterWithRatings, user: req.user });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    } else {
+        res.redirect("/");
     }
 });
 
@@ -550,6 +578,59 @@ app.post("/profile/:id", async (req, res) => {
     }
 });
 
+app.post("/rateCharacter/:id", async (req, res) => {
+    if(req.isAuthenticated()){
+        try {
+            const id = parseInt(req.params.id);
+            const character = (await characters).find((character) => character.id === id);
+            const getCharacterByIdQuery = "SELECT * FROM characters WHERE id = $1";
+            const currentCharacter = await query(getCharacterByIdQuery, [id]);
+
+            const currentRatingQuery = "SELECT ranking FROM character_ranking WHERE user_id = $1 AND character_id = $2";
+            const currentRating = await query(currentRatingQuery, [req.user.id, id]);
+
+            if(currentRating.rows.length > 0){
+                if (character) {
+                    const updateQuery = `UPDATE character_ranking SET ranking = $1, updated_at = $2 WHERE user_id = $3 AND character_id = $4`;
+                    const values = [
+                        req.body.rating,
+                        new Date().toISOString(),
+                        req.user.id,
+                        id
+                    ];
+    
+                    await query(updateQuery, values);
+    
+                    res.redirect("/character/"+id);
+                } else {
+                    res.status(404).json({ message: `Character with id: ${id} not found for update` });
+                }
+            }
+            else{
+                if (character) {
+                const createQuery = `INSERT INTO character_ranking (user_id, character_id, ranking, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)`;
+                const values = [
+                    req.user.id,
+                    id,
+                    req.body.rating,
+                    new Date().toISOString(),
+                    new Date().toISOString()
+                ];
+
+                await query(createQuery, values);
+
+                res.redirect("/character/"+id);
+                } else {
+                    res.status(404).json({ message: `Character with id: ${id} not found for update` });
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+});
+
 // Get characters with closest birthdays
 app.get('/birthday' , async (req, res) => {
     if(req.isAuthenticated()) {
@@ -589,7 +670,7 @@ app.get('/search', async (req, res) => {
     }
 });
 
-// All routes
+// ALL ROUTES BELOW
 
 // Login page
 app.get('/', (req, res) => {
