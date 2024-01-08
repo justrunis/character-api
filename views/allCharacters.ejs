@@ -33,12 +33,11 @@
                             <% }); %>
                         </select>
                     </div>
-                    <label for="page">currentPage</label>
-                    <input class="form-control" type="block" name="page" value="<%= locals.currentPage %>">
+                    <input class="form-control" type="hidden" name="page" value="<%= locals.currentPage %>">
 
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                    <button class="btn btn-primary" type="submit" onclick="document.getElementsByName('page')[0].value = 1;">Search</button>
                 </div>
             </div>
         </form>
@@ -46,6 +45,7 @@
         <% if (locals.characters.length === 0) { %>
             <h2 class="text-center">No characters found.</h2>
         <% } else { %>
+            <%- include("partials/pager.ejs") %>
             <% characters.forEach(function(character, index) { %>
                 <% if (index % 3 === 0) { %>
                     <div class="row mx-2">
@@ -87,44 +87,7 @@
                 <% } %>
             <% }); %>
         <% } %>
-        <div class="d-flex justify-content-center align-items-center">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <% if (currentPage > 1) { %>
-                        <li class="page-item">
-                            <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage - 1 %>">Previous</a>
-                        </li>
-                    <% } else { %>
-                        <li class="page-item disabled">
-                            <span class="page-link">Previous</span>
-                        </li>
-                    <% } %>
-                
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <% if (i === currentPage) { %>
-                            <li class="page-item active">
-                                <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } else { %>
-                            <li class="page-item">
-                                <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } %>
-                    <% } %>
-                
-                    <% if (currentPage < totalPages) { %>
-                        <li class="page-item">
-                            <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage + 1 %>">Next</a>
-                        </li>
-                    <% } else { %>
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
-                    <% } %>
-                </ul>
-                
-            </nav>
-        </div>
+        <%- include("partials/pager.ejs") %>
     </div>
 
 

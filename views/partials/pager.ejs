@@ -1,0 +1,39 @@
+<!-- PAGER -->
+<div class="d-flex justify-content-center align-items-center">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <% if (currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage - 1 %>">Previous</a>
+                </li>
+            <% } else { %>
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+            <% } %>
+        
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <% if (i === currentPage) { %>
+                    <li class="page-item active">
+                        <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } else { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+            <% } %>
+        
+            <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage + 1 %>">Next</a>
+                </li>
+            <% } else { %>
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+            <% } %>
+        </ul>
+        
+    </nav>
+</div>
