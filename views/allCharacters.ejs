@@ -2,26 +2,23 @@
 <%- include("partials/addCharacter.ejs") %>
 
 <div class="container-fluid justify-content-center align-items-center">
-        <form class="my-2" action="/search" method="GET">
+        <form class="my-2" action="/characters" method="GET">
             <div class="row my-2 mx-0 card d-flex flex-wrap flex-row justify-content-center">
                 <div class="col-md-2">
                     <label for="name">Search by character name</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" name="name" placeholder="Enter character name">
+                        <input type="text" class="form-control" name="name" placeholder="Enter character name" value="<%= locals.query.name ? locals.query.name : '' %>">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <label for="sortElement">Search by element</label>
                     <div class="input-group">
                         <select id="sortElement" name="sortElement" class="form-control">
-                            <option value="">-- Select element --</option>
-                            <option value="Anemo">Anemo</option>
-                            <option value="Geo">Geo</option>
-                            <option value="Electro">Electro</option>
-                            <option value="Dendro">Dendro</option>
-                            <option value="Hydro">Hydro</option>
-                            <option value="Pyro">Pyro</option>
-                            <option value="Cryo">Cryo</option>
+                                <option value="">-- Select element --</option>
+                                <% var elements = ['Anemo', 'Geo', 'Electro', 'Hydro', 'Pyro', 'Cryo', 'Dendro']; %>
+                                <% elements.forEach(function(element) { %>
+                                    <option value="<%= element %>" <% if (element === locals.query.sortElement) { %>selected<% } %>><%= element %></option>
+                                <% }); %>
                         </select>
                     </div>
                 </div>
@@ -30,13 +27,15 @@
                     <div class="input-group">
                         <select id="sortWeapon" name="sortWeapon" class="form-control">
                             <option value="">-- Select weapon --</option>
-                            <option value="Sword">Sword</option>
-                            <option value="Claymore">Claymore</option>
-                            <option value="Bow">Bow</option>
-                            <option value="Catalyst">Catalyst</option>
-                            <option value="Polearm">Polearm</option>
+                            <% var weapons = ['Sword', 'Claymore', 'Bow', 'Catalyst', 'Polearm']; %>
+                            <% weapons.forEach(function(weapon) { %>
+                                <option value="<%= weapon %>" <% if(weapon === locals.query.sortWeapon) { %>selected<%} %>><%= weapon %></option>
+                            <% }); %>
                         </select>
                     </div>
+                    <label for="page">currentPage</label>
+                    <input class="form-control" type="block" name="page" value="<%= locals.currentPage %>">
+
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button class="btn btn-primary" type="submit">Search</button>
@@ -88,17 +87,44 @@
                 <% } %>
             <% }); %>
         <% } %>
-        <!-- <div class="d-flex justify-content-center align-items-center">
+        <div class="d-flex justify-content-center align-items-center">
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    <% } %>
+                
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === currentPage) { %>
+                            <li class="page-item active">
+                                <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } else { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    <% } %>
+                
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/characters?name=<%= locals.query.name %>&sortElement=<%= locals.query.sortElement %>&sortWeapon=<%= locals.query.sortWeapon %>&page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    <% } %>
                 </ul>
+                
             </nav>
-        </div> -->
+        </div>
     </div>
 
 

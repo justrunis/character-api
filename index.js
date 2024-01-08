@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
-import { getCharactersWithClosestBirthdays, getAllCharactersAverageRating } from "./lib.js";
+import { getCharactersWithClosestBirthdays, getAllCharactersAverageRating, calculatePager } from "./lib.js";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
@@ -304,17 +304,35 @@ app.post("/add", async (req, res) => {
 
 // Get all characters
 app.get("/characters", async (req, res) => {
+    let page = parseInt(req.query.page);
     if(req.isAuthenticated()) {
-        try {
-            console.log(req.user.role);
-            const characters = await getCharacters();
-            res.render('allCharacters.ejs', { characters: characters, user: req.user });
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: error.message });
+        
+        console.log("NAME PARAM "+req.query.name);
+        console.log("ELEMENT PARAM "+req.query.sortElement);
+        console.log("WEAPON PARAM "+req.query.sortWeapon);
+        console.log("PAGE PARAM "+req.query.page);
+        
+        let result = await getCharacters();
+        
+        // Search for characters by name if name is provided
+        if(req.query.name){
+            result = searchCharacterByName(req.query.name, result);
         }
-    }
-    else{
+    
+        // Sort characters by element if sortElement is provided
+        if (req.query.sortElement) {
+            result = getCharactersByElement(req.query.sortElement, result);
+        }
+
+        // Sort characters by weapon if sortWeapon is provided
+        if (req.query.sortWeapon) {
+            result = getCharactersByWeapon(req.query.sortWeapon, result);
+        }
+        let { characters, totalPages, currentPage } = calculatePager(page, result);
+        console.log("CHANGED CURRENT PAGE " + req.query.page);
+        res.render('allCharacters.ejs', { characters: characters, user: req.user, totalPages: totalPages, currentPage: currentPage, query: req.query });
+        
+    } else {
         res.redirect("/");
     }
 });
@@ -640,31 +658,6 @@ app.get('/birthday' , async (req, res) => {
             console.log(error);
             res.status(500).json({ error: error.message });
         }
-    } else {
-        res.redirect("/");
-    }
-});
-
-// Search/Sort for a character
-app.get('/search', async (req, res) => {
-    if(req.isAuthenticated()) {
-        console.log(req.query);
-        let result = await getCharacters();
-        if(req.query.name){
-            result = searchCharacterByName(req.query.name, result);
-        }
-    
-        // Sort characters by element if sortElement is provided
-        if (req.query.sortElement) {
-            result = getCharactersByElement(req.query.sortElement, result);
-        }
-        
-        // Sort characters by weapon if sortWeapon is provided
-        if (req.query.sortWeapon) {
-            result = getCharactersByWeapon(req.query.sortWeapon, result);
-        }
-        
-        res.render('allCharacters.ejs', { characters: result, user: req.user });
     } else {
         res.redirect("/");
     }

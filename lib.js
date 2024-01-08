@@ -59,7 +59,25 @@ export function getAllCharactersAverageRating(allCharacters, allRatings) {
     return charactersAverageRating;
 }
 
+export function calculatePager(page, characters){
+    if(!page) page = 1;
+    const pageSize = 3; // Number of characters per page
+    const startIndex = (page - 1) * pageSize;
+
+    const totalPages = Math.ceil(characters.length / pageSize);
+
+    if (page > totalPages) {
+        page = 1;
+    }
+
+    const paginatedCharacters = characters.slice(startIndex, startIndex + pageSize);
+
+    return { characters: paginatedCharacters, totalPages: totalPages, currentPage: page };
+
+}
+
 export default {
     getCharactersWithClosestBirthdays,
-    getAllCharactersAverageRating
+    getAllCharactersAverageRating,
+    calculatePager
 };
