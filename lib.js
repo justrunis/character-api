@@ -2,6 +2,7 @@
  * Retrieves characters with closest birthdays from the given array of characters.
  * 
  * @param {Array} allCharacters - The array of characters.
+ * @param {number} characterAmount - The number of characters to retrieve.
  * @returns {Array} - The filtered array of characters with closest birthdays.
  */
 export function getCharactersWithClosestBirthdays(allCharacters, characterAmount) {
@@ -26,11 +27,11 @@ export function getCharactersWithClosestBirthdays(allCharacters, characterAmount
 }
 
 /**
- * 
- * @param {*} allCharacters 
- * @param {*} allRatings 
+ * Retrieves all characters with their average rating.
+ * @param {*} allCharacters - The array of characters.
+ * @param {*} allRatings - The array of ratings.
+ * @returns {Array} - The array of characters with their average rating.
  */
-
 export function getAllCharactersAverageRating(allCharacters, allRatings) {
 
     const reverseRatingValues = [
@@ -59,9 +60,15 @@ export function getAllCharactersAverageRating(allCharacters, allRatings) {
     return charactersAverageRating;
 }
 
-export function calculatePager(page, characters){
+/**
+ * Calculates the pager.
+ * @param {*} page - The current page.
+ * @param {*} characters - The array of characters.
+ * @param {*} pageSize - The page size.
+ * @returns {Array} - The array of characters for the current page.
+ */
+export function calculatePager(page, characters, pageSize){
     if(!page) page = 1;
-    const pageSize = 3; // Number of characters per page
     const startIndex = (page - 1) * pageSize;
 
     const totalPages = Math.ceil(characters.length / pageSize);

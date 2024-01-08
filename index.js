@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
-import { getCharactersWithClosestBirthdays, getAllCharactersAverageRating, calculatePager } from "./lib.js";
+import * as lib from "./lib.js";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
@@ -11,9 +11,11 @@ import 'dotenv/config';
 
 
 const app = express();
-const port = 3000;
-const saltRounds = 10;
-const characterAmount = 5;
+
+const port = 3000; // Port number for the server
+const saltRounds = 10; // Number of salt rounds for bcrypt
+const pageSize = 6; // Number of characters per page
+const characterAmount = 6; // Number of characters with closest birthdays
 
 // Change to your own database
 // Windows setup
@@ -328,7 +330,7 @@ app.get("/characters", async (req, res) => {
         if (req.query.sortWeapon) {
             result = getCharactersByWeapon(req.query.sortWeapon, result);
         }
-        let { characters, totalPages, currentPage } = calculatePager(page, result);
+        let { characters, totalPages, currentPage } = lib.calculatePager(page, result, pageSize);
         console.log("CHANGED CURRENT PAGE " + req.query.page);
         res.render('allCharacters.ejs', { characters: characters, user: req.user, totalPages: totalPages, currentPage: currentPage, query: req.query });
         
@@ -444,7 +446,7 @@ app.get("/editUser/:id", async (req, res) => {
 app.get("/tierlist", async (req, res) => {
     if(req.isAuthenticated()) {
         try {
-            let characterWithRatings = getAllCharactersAverageRating(await getCharacters(), (await query("SELECT * FROM character_ranking")).rows);
+            let characterWithRatings = lib.getAllCharactersAverageRating(await getCharacters(), (await query("SELECT * FROM character_ranking")).rows);
             console.log("AVERAGE RATINGS:");
             characterWithRatings.forEach((character) => {
                 console.log("Character: " + character.character.name);
@@ -653,7 +655,7 @@ app.post("/rateCharacter/:id", async (req, res) => {
 app.get('/birthday' , async (req, res) => {
     if(req.isAuthenticated()) {
         try {
-            res.render('closestBirthday.ejs', { characters: getCharactersWithClosestBirthdays(await getCharacters(), characterAmount), user: req.user });
+            res.render('closestBirthday.ejs', { characters: lib.getCharactersWithClosestBirthdays(await getCharacters(), characterAmount), user: req.user });
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: error.message });

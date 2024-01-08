@@ -82,12 +82,10 @@
                                     <div class="input-group my-2">
                                         <select id="rating" name="rating" class="form-select" required>
                                             <option value="" disabled selected>Select a rating</option>
-                                            <option value="SS">SS</option>
-                                            <option value="S">S</option>
-                                            <option value="A">A</option>
-                                            <option value="B">B</option>
-                                            <option value="C">C</option>
-                                            <option value="D">D</option>
+                                            <% const ratings = ['SS', 'S', 'A', 'B', 'C', 'D']; %>
+                                            <% ratings.forEach((rating) => { %>
+                                                <option value="<%= rating %>" <%= locals.characterRanking === rating ? 'selected' : '' %>><%= rating %></option>
+                                            <% }); %>
                                         </select>
                                         <button type="submit" class="btn btn-primary">Rate Character</button>
                                     </div>

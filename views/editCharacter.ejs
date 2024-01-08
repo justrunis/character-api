@@ -13,24 +13,20 @@
             <div class="mb-3">
                 <strong><label for="weapon" class="form-label">Weapon:</label></strong>
                 <select id="weapon" name="weapon" class="form-select" required>
-                    <option value="Sword" <%=character.weapon==='Sword' ? 'selected' : '' %>>Sword</option>
-                    <option value="Claymore" <%=character.weapon==='Claymore' ? 'selected' : '' %>>Claymore</option>
-                    <option value="Bow" <%=character.weapon==='Bow' ? 'selected' : '' %>>Bow</option>
-                    <option value="Catalyst" <%=character.weapon==='Catalyst' ? 'selected' : '' %>>Catalyst</option>
-                    <option value="Polearm" <%=character.weapon==='Polearm' ? 'selected' : '' %>>Polearm</option>
+                    <% var weapons = ['Sword', 'Claymore', 'Bow', 'Catalyst', 'Polearm']; %>
+                    <% weapons.forEach(function(weapon) { %>
+                        <option value="<%= weapon %>" <%= character.weapon === weapon ? 'selected' : '' %>><%= weapon %></option>
+                    <% }); %>
                 </select>
             </div>
 
             <div class="mb-3">
                 <strong><label for="element" class="form-label">Element:</label></strong>
                 <select id="element" name="element" class="form-select" required>
-                    <option value="Anemo" <%=character.element==='Anemo' ? 'selected' : '' %>>Anemo</option>
-                    <option value="Geo" <%=character.element==='Geo' ? 'selected' : '' %>>Geo</option>
-                    <option value="Electro" <%=character.element==='Electro' ? 'selected' : '' %>>Electro</option>
-                    <option value="Hydro" <%=character.element==='Hydro' ? 'selected' : '' %>>Hydro</option>
-                    <option value="Pyro" <%=character.element==='Pyro' ? 'selected' : '' %>>Pyro</option>
-                    <option value="Cryo" <%=character.element==='Cryo' ? 'selected' : '' %>>Cryo</option>
-                    <option value="Dendro" <%=character.element==='Dendro' ? 'selected' : '' %>>Dendro</option>
+                    <% var elements = ['Anemo', 'Geo', 'Electro', 'Hydro', 'Pyro', 'Cryo', 'Dendro']; %>
+                    <% elements.forEach(function(element) { %>
+                        <option value="<%= element %>" <%= character.element === element ? 'selected' : '' %>><%= element %></option>
+                    <% }); %>
                 </select>
             </div>
 
@@ -60,14 +56,10 @@
             <div class="mb-3">
                 <strong><label for="region" class="form-label">Region:</label></strong>
                 <select id="region" name="region" class="form-select" required>
-                    <option value="Other" <%=character.region==='Other' ? 'selected' : '' %>>Other</option>
-                    <option value="Mondstadt" <%=character.region==='Mondstadt' ? 'selected' : '' %>>Mondstadt</option>
-                    <option value="Liyue" <%=character.region==='Liyue' ? 'selected' : '' %>>Liyue</option>
-                    <option value="Inazuma" <%=character.region==='Inazuma' ? 'selected' : '' %>>Inazuma</option>
-                    <option value="Sumeru" <%=character.region==='Sumeru' ? 'selected' : '' %>>Sumeru</option>
-                    <option value="Fontaine" <%=character.region==='Fontaine' ? 'selected' : '' %>>Fontaine</option>
-                    <option value="Natlan" <%=character.region==='Natlan' ? 'selected' : '' %>>Natlan</option>
-                    <option value="Snezhnaya" <%=character.region==='Snezhnaya' ? 'selected' : '' %>>Snezhnaya</option>
+                    <% var regions = ['Other', 'Mondstadt', 'Liyue', 'Inazuma', 'Sumeru', 'Fontaine', 'Natlan', 'Snezhnaya']; %>
+                    <% regions.forEach(function(region) { %>
+                        <option value="<%= region %>" <%= character.region === region ? 'selected' : '' %>><%= region %></option>
+                    <% }); %>
                 </select>
                 <div class="invalid-feedback">Please select a region.</div>
             </div>

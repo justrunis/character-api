@@ -2,45 +2,7 @@
 <%- include("partials/addCharacter.ejs") %>
 
 <div class="container-fluid justify-content-center align-items-center">
-        <form class="my-2" action="/characters" method="GET">
-            <div class="row my-2 mx-0 card d-flex flex-wrap flex-row justify-content-center">
-                <div class="col-md-2">
-                    <label for="name">Search by character name</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="name" placeholder="Enter character name" value="<%= locals.query.name ? locals.query.name : '' %>">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label for="sortElement">Search by element</label>
-                    <div class="input-group">
-                        <select id="sortElement" name="sortElement" class="form-control">
-                                <option value="">-- Select element --</option>
-                                <% var elements = ['Anemo', 'Geo', 'Electro', 'Hydro', 'Pyro', 'Cryo', 'Dendro']; %>
-                                <% elements.forEach(function(element) { %>
-                                    <option value="<%= element %>" <% if (element === locals.query.sortElement) { %>selected<% } %>><%= element %></option>
-                                <% }); %>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label for="sortWeapon">Search by weapon</label>
-                    <div class="input-group">
-                        <select id="sortWeapon" name="sortWeapon" class="form-control">
-                            <option value="">-- Select weapon --</option>
-                            <% var weapons = ['Sword', 'Claymore', 'Bow', 'Catalyst', 'Polearm']; %>
-                            <% weapons.forEach(function(weapon) { %>
-                                <option value="<%= weapon %>" <% if(weapon === locals.query.sortWeapon) { %>selected<%} %>><%= weapon %></option>
-                            <% }); %>
-                        </select>
-                    </div>
-                    <input class="form-control" type="hidden" name="page" value="<%= locals.currentPage %>">
-
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary" type="submit" onclick="document.getElementsByName('page')[0].value = 1;">Search</button>
-                </div>
-            </div>
-        </form>
+    <%- include("partials/characterSearch.ejs") %>
 
         <% if (locals.characters.length === 0) { %>
             <h2 class="text-center">No characters found.</h2>
