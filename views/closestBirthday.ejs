@@ -1,22 +1,30 @@
 <%- include("partials/header.ejs") %>
 
-<div class="d-flex justify-content-center align-items-center flex-column mt-5 card mx-2 my-2" style="width: auto">
-    <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-        <% locals.characters.forEach(function(character) { %>
-                <div class="card-body">
-                    <h5 class="card-title"><%= character.name %></h5>
-                    <div class="text-center my-4">
-                        <img src="<%= character.image_url %>" height="200" width="200" class="card-image">
-                        <p class="card-text"><strong>Birthday:</strong> <%= character.birthday %></p>
-                        <% if (character.daysUntilBirthday === 0) { %>
-                            <p class="card-text birthday-text"><strong>Happy birthday to <%= character.name %>!</strong></p>
-                        <% } else { %>
-                            <p class="card-text"><strong>Days until birthday:</strong> <%= character.daysUntilBirthday %></p>
-                        <% } %>
-                    </div>
+<h1 class="text-center">Closest character birthdays</h1>
+<div class="mt-5 card mx-2 my-2" style="width: auto">
+    <ul class="text-center">
+        <% locals.characters.forEach(function(character, index) { %>
+            <% if (index % 3 === 0) { %>
+                <div class="row">
+            <% } %>
+            <div class="card-body col-md-4">
+                <h5 class="card-title"><%= character.name %></h5>
+                <div class="text-center my-4">
+                    <img src="<%= character.image_url %>" class="card-image">
+                    <p class="card-text"><strong>Birthday:</strong> <%= character.birthday %></p>
+                    <% if (character.daysUntilBirthday === 0) { %>
+                        <p class="card-text birthday-text"><strong>Happy birthday to <%= character.name %>!</strong></p>
+                    <% } else { %>
+                        <p class="card-text"><strong>Days until birthday:</strong> <%= character.daysUntilBirthday %></p>
+                    <% } %>
                 </div>
+            </div>
+            <% if ((index + 1) % 3 === 0 || (index + 1) === locals.characters.length) { %>
+                </div>
+            <% } %>
         <% }); %>
     </ul>
 </div>
+
 
 <%- include("partials/footer.ejs") %>

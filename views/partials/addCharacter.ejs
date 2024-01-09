@@ -1,8 +1,7 @@
 <% if(locals.user){ %>
     <% if(locals.user.role === 'admin') {%>
         <div class="w3-container">
-            <button onclick="document.getElementById('id01').style.display='block'" class="btn btn-success mt-3">Add character</button>
-
+            <button onclick="document.getElementById('id01').style.display='block'; document.getElementById('id01').style.zIndex='10'" class="btn btn-success mt-3">Add character</button>
             <div id="id01" class="w3-modal">
                 <div class="w3-modal-content">
                     <header class="w3-container w3-blue">
@@ -21,24 +20,20 @@
                             <div class="mb-3">
                                 <label for="weapon" class="form-label">Weapon:</label>
                                 <select id="weapon" name="weapon" class="form-select" required>
-                                    <option value="Sword">Sword</option>
-                                    <option value="Claymore">Claymore</option>
-                                    <option value="Bow">Bow</option>
-                                    <option value="Catalyst">Catalyst</option>
-                                    <option value="Polearm">Polearm</option>
+                                    <% const weapons = ['Sword', 'Claymore', 'Bow', 'Catalyst', 'Polearm']; %>
+                                    <% weapons.forEach(weapon => { %>
+                                        <option value="<%= weapon %>"><%= weapon %></option>
+                                    <% }); %>
                                 </select>
                             </div>
 
                             <div class="mb-3">
                                 <label for="element" class="form-label">Element:</label>
                                 <select id="element" name="element" class="form-select" required>
-                                    <option value="Anemo">Anemo</option>
-                                    <option value="Geo">Geo</option>
-                                    <option value="Electro">Electro</option>
-                                    <option value="Hydro">Hydro</option>
-                                    <option value="Pyro">Pyro</option>
-                                    <option value="Cryo">Cryo</option>
-                                    <option value="Dendro">Dendro</option>
+                                    <% const elements = ['Anemo', 'Geo', 'Electro', 'Hydro', 'Pyro', 'Cryo', 'Dendro']; %>
+                                    <% elements.forEach(element => { %>
+                                        <option value="<%= element %>"><%= element %></option>
+                                    <% }); %>
                                 </select>
                             </div>
 
@@ -67,14 +62,10 @@
                             <div class="mb-3">
                                 <label for="region" class="form-label">Region:</label>
                                 <select id="region" name="region" class="form-select" required>
-                                    <option selected value="Other">Other</option>
-                                    <option value="Mondstadt">Mondstadt</option>
-                                    <option value="Liyue">Liyue</option>
-                                    <option value="Inazuma">Inazuma</option>
-                                    <option value="Sumeru">Sumeru</option>
-                                    <option value="Fontaine">Fontaine</option>
-                                    <option value="Natlan">Natlan</option>
-                                    <option value="Snezhnaya">Snezhnaya</option>
+                                    <% const regions = ['Other', 'Mondstadt', 'Liyue', 'Inazuma', 'Sumeru', 'Fontaine', 'Natlan', 'Snezhnaya']; %>
+                                    <% regions.forEach(region => { %>
+                                        <option value="<%= region %>"><%= region %></option>
+                                    <% }); %>
                                 </select>
                                 <div class="invalid-feedback">Please select a region.</div>
                             </div>

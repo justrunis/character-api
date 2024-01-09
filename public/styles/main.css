@@ -1,5 +1,9 @@
+:root{
+    --background-color: antiquewhite;
+}
+
 body{
-    background-color: antiquewhite;
+    background-color: var(--background-color);
 }
 
 .add-container{
@@ -59,4 +63,49 @@ body{
     font-size: 20px;
     font-weight: bold;
     text-align: center;
+}
+
+.tier-list-card{
+    padding: 10px;
+    padding-bottom: 0;
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 15rem; 
+    height: 20rem; 
+    display: inline-block;
+    margin: 10px;
+    background-color: white;
+}
+
+.tier-list-card .card-img-top{
+    border-radius: 50%;
+}
+
+.tier-table{
+    --bs-table-border-color: black;
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+
+    .tier-list-card{
+        padding: 10px;
+        padding-bottom: 0;
+        border: 1px solid black;
+        border-radius: 10px;
+        width: 100px; /* Updated */
+        height: 100px; /* Updated */
+        display: inline-block;
+        margin: 10px;
+        background-color: white;
+    }
+
+    .tier-list-card .card-img-top{
+        width: 50px;
+        height: 50px;
+    }
+
+    .tier-list-card .tier-list-title{
+        font-size: 10pt;
+    }
 }

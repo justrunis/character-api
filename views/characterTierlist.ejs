@@ -1,102 +1,56 @@
 <%- include("partials/header.ejs") %>
+<% 
+    function getTierColor(tier) {
+        switch (tier) {
+            case 'SS':
+                return '#FF0000';
+            case 'S':
+                return '#FF4500';
+            case 'A':
+                return '#FF8C00';
+            case 'B':
+                return '#FFD700';
+            case 'C':
+                return '#ADFF2F';
+            case 'D':
+                return '#00FF00';
+            default:
+                return 'black';
+        }
+    }
+%>
 
-<h2 class="text-center">All character tier list</h2>
+<h1 class="text-center">All characters public tier list</h1>
 
 <div class="tier-list">
-    <div class="d-flex justify-content-center align-items-center flex-column">
-        <h3 class="rating-ss text-center" style="color: #FF0000; font-weight: bold;">SS Tier</h3>
-        <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-            <% locals.characters.forEach(function(character) { %>
-                <% if (character.rating === 'SS') { %>
-                    <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                        <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                        <div class="card-body">
-                            <p class="tier-list-title"><%= character.character.name %></p>
-                        </div>
-                    </div>
+    <div class="d-flex justify-content-start align-items-center container-fluid">
+        <table class="table table-striped table-hover table-sm rounded tier-table">
+            <% ['SS', 'S', 'A', 'B', 'C', 'D'].forEach(function(tier) { %>
+                <% const charactersInTier = locals.characters.filter(function(character) { return character.rating === tier; }); %>
+                <% if (charactersInTier.length > 0) { %>
+                    <tr>
+                        <td class="text-center align-middle">
+                            <h3 class="rating-<%= tier.toLowerCase() %> text-center" style="color: <%= getTierColor(tier) %>; font-weight: bold;"><%= tier %></h3>
+                        </td>
+                        <td class="text-center d-flex flex-wrap">
+                            <% charactersInTier.forEach(function(character, index) { %>
+                                <% if (index % 6 === 0) { %>
+                                    </div>
+                                    <div class="tier-list-card-container d-flex flex-wrap my-2">
+                                <% } %>
+                                <div class="tier-list-card">
+                                    <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
+                                    <div class="card-body">
+                                        <p class="tier-list-title"><%= character.character.name %></p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </td>
+                    </tr>
                 <% } %>
             <% }); %>
-        </ul>
+        </table>
     </div>
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h3 class="rating-s text-center" style="color: #FF4500; font-weight: bold;">S Tier</h3>
-            <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-                <% locals.characters.forEach(function(character) { %>
-                    <% if (character.rating === 'S') { %>
-                        <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                            <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                            <div class="card-body">
-                                <p class="tier-list-title"><%= character.character.name %></p>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }); %>
-            </ul>
-        </div>
-        
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h3 class="rating-a text-center" style="color: #FF8C00; font-weight: bold;">A Tier</h3>
-            <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-                <% locals.characters.forEach(function(character) { %>
-                    <% if (character.rating === 'A') { %>
-                        <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                            <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                            <div class="card-body">
-                                <p class="tier-list-title"><%= character.character.name %></p>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }); %>
-            </ul>
-        </div>
-        
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h3 class="rating-b text-center" style="color: #FFD700; font-weight: bold;">B Tier</h3>
-            <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-                <% locals.characters.forEach(function(character) { %>
-                    <% if (character.rating === 'B') { %>
-                        <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                            <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                            <div class="card-body">
-                                <p class="tier-list-title"><%= character.character.name %></p>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }); %>
-            </ul>
-        </div>
-        
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h3 class="rating-c text-center" style="color: #ADFF2F; font-weight: bold;">C Tier</h3>
-            <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-                <% locals.characters.forEach(function(character) { %>
-                    <% if (character.rating === 'C') { %>
-                        <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                            <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                            <div class="card-body">
-                                <p class="tier-list-title"><%= character.character.name %></p>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }); %>
-            </ul>
-        </div>
-        
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h3 class="rating-d text-center" style="color: #00FF00; font-weight: bold;">D Tier</h3>
-            <ul class="text-center d-flex flex-wrap justify-content-center align-items-center">
-                <% locals.characters.forEach(function(character) { %>
-                    <% if (character.rating === 'D') { %>
-                        <div class="card my-2" style="width: 15rem; height: 20rem; display: inline-block;">
-                            <img src="<%= character.character.image_url %>" class="card-img-top" alt="<%= character.character.name %>">
-                            <div class="card-body">
-                                <p class="tier-list-title"><%= character.character.name %></p>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }); %>
-            </ul>
-        </div>
 </div>
 
 <%- include("partials/footer.ejs") %>

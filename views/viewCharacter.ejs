@@ -1,6 +1,6 @@
 <%- include("partials/header.ejs") %>
 
-<div class="col-md-6 mx-auto">
+<div class="col-md-6 mx-auto container-fluid">
     <div class="card my-3 container-fluid">
         <div class="card-body d-flex flex-column align-items-center justify-content-center">
             <h2 class="card-title text-center my-5">
@@ -8,7 +8,7 @@
                     <%= character.name %>
                 </strong>
             </h2>
-            <img src="<%= character.image_url %>" height="200" width="200" class="card-image">
+            <img src="<%= character.image_url %>" class="card-image">
             <p class="card-text"><strong>Element:</strong>
                 <img class="image-fluid" src="/images/Element_<%= character.element %>.jpg"
                     alt="<%= character.element %> Image" height="30" width="30">
@@ -48,20 +48,27 @@
             <% if(locals.characterRanking){ %>
                 <strong>
                 <p class="card-text">Your rating for <%= locals.character.name %>: 
-                    <% if (locals.characterRanking === 'SS') { %>
-                        <span class="rating-ss" style="color: #FF0000;">SS</span>
-                    <% } else if (locals.characterRanking === 'S') { %>
-                        <span class="rating-s" style="color: #FF4500;">S</span>
-                    <% } else if (locals.characterRanking === 'A') { %>
-                        <span class="rating-a" style="color: #FF8C00;">A</span>
-                    <% } else if (locals.characterRanking === 'B') { %>
-                        <span class="rating-b" style="color: #FFD700;">B</span>
-                    <% } else if (locals.characterRanking === 'C') { %>
-                        <span class="rating-c" style="color: #ADFF2F;">C</span>
-                    <% } else if (locals.characterRanking === 'D') { %>
-                        <span class="rating-d" style="color: #00FF00;">D</span>
-                    <% } %>
+                    <% switch (locals.characterRanking) {
+                        case 'SS': %>
+                            <span class="rating-ss" style="color: #FF0000;">SS</span>
+                        <% break;
+                        case 'S': %>
+                            <span class="rating-s" style="color: #FF4500;">S</span>
+                        <% break;
+                        case 'A': %>
+                            <span class="rating-a" style="color: #FF8C00;">A</span>
+                        <% break;
+                        case 'B': %>
+                            <span class="rating-b" style="color: #FFD700;">B</span>
+                        <% break;
+                        case 'C': %>
+                            <span class="rating-c" style="color: #ADFF2F;">C</span>
+                        <% break;
+                        case 'D': %>
+                            <span class="rating-d" style="color: #00FF00;">D</span>
+                        <% break;} %>
                 </p>
+                </strong>
             <% } %>
 
             <div class="w3-container">

@@ -21,16 +21,19 @@
         <div class="form-group">
             <label for="gender">Gender</label>
             <select class="form-control" id="gender" name="gender">
-                <option value="other" <%= user.gender === 'other' ? 'selected' : '' %>>Other</option>
-                <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Male</option>
-                <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Female</option>
+                <% const genders = ['other', 'male', 'female']; %>
+                <% genders.forEach(gender => { %>
+                    <option value="<%= gender %>" <%= user.gender === gender ? 'selected' : '' %>><%= gender.charAt(0).toUpperCase() + gender.slice(1) %></option>
+                <% }); %>
             </select>
         </div>
         <div class="form-group">
             <label for="role">Role</label>
             <select class="form-control" id="role" name="role">
-                <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
-                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                <% const roles = ['user', 'admin']; %>
+                <% roles.forEach(role => { %>
+                    <option value="<%= role %>" <%= user.role === role ? 'selected' : '' %>><%= role.charAt(0).toUpperCase() + role.slice(1) %></option>
+                <% }); %>
             </select>
         </div>
         <button type="submit" class="btn btn-primary mt-2">Save Changes</button>

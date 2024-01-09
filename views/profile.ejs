@@ -118,32 +118,6 @@
 
         isEditing = !isEditing;
     });
-
-    // document.querySelector('.save').addEventListener('click', function() {
-    //     var formData = new FormData(document.getElementById('profileForm'));
-
-    //     var xhr = new XMLHttpRequest();
-    //     xhr.open('POST', '/update-profile', true);
-    //     xhr.onload = function() {
-    //         if (xhr.status === 200) {
-    //             var response = JSON.parse(xhr.responseText);
-    //             document.getElementById('email').textContent = response.email;
-    //             document.getElementById('date_of_birth').textContent = response.date_of_birth;
-    //             document.getElementById('gender').textContent = response.gender;
-
-    //             document.querySelectorAll('input, select').forEach(function(input) {
-    //                 var span = document.createElement('span');
-    //                 span.id = input.id;
-    //                 span.textContent = input.value;
-    //                 input.parentNode.replaceChild(span, input);
-    //             });
-    //             document.querySelector('.edit').textContent = 'Edit';
-    //             document.querySelector('.save').style.display = 'none';
-    //             isEditing = false;
-    //         }
-    //     };
-    //     xhr.send(formData);
-    // });
 </script>
 
 <%- include("partials/footer.ejs") %>

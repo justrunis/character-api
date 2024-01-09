@@ -14,7 +14,7 @@ const app = express();
 
 const port = 3000; // Port number for the server
 const saltRounds = 10; // Number of salt rounds for bcrypt
-const pageSize = 6; // Number of characters per page
+const pageSize = 3; // Number of characters per page
 const characterAmount = 6; // Number of characters with closest birthdays
 
 // Change to your own database
