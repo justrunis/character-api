@@ -5,7 +5,7 @@
         let date = new Date(birthday);
         let formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     %>
-    <div class="card mt-2">
+    <div class="card mt-5">
         <h2>My profile</h2>
         <div class="card-body">
             <form id="profileForm" action="/profile/<%= user.id %>" method="POST">

@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
 import { Strategy as LocalStrategy } from 'passport-local';
+import rateLimit from "express-rate-limit";
 const { Pool } = pg;
 import 'dotenv/config';
 
@@ -17,23 +18,33 @@ const saltRounds = 10; // Number of salt rounds for bcrypt
 const pageSize = 3; // Number of characters per page
 const characterAmount = 6; // Number of characters with closest birthdays
 
+const windowMs = 15 * 60 * 1000; // 15 minutes
+const reqAmount = 100; // 100 requests
+
+const limiter = rateLimit({
+    windowMs: windowMs,
+    max: reqAmount,
+});
+
+app.use(limiter);
+
 // Change to your own database
 // Windows setup
-// const db = new Pool({
-//     user: "postgres",
-//     host: "localhost",
-//     database: "characters",
-//     password: "dbpassword123",
-//     port: 5432,
-// });
-// Linux setup
 const db = new Pool({
-    user: "localhost",
+    user: "postgres",
     host: "localhost",
     database: "characters",
     password: "dbpassword123",
-    port: 5433,
+    port: 5432,
 });
+// Linux setup
+// const db = new Pool({
+//     user: "localhost",
+//     host: "localhost",
+//     database: "characters",
+//     password: "dbpassword123",
+//     port: 5433,
+// });
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -443,15 +454,11 @@ app.get("/editUser/:id", async (req, res) => {
     }
 });
 
+// Get tierlist page
 app.get("/tierlist", async (req, res) => {
     if(req.isAuthenticated()) {
         try {
             let characterWithRatings = lib.getAllCharactersAverageRating(await getCharacters(), (await query("SELECT * FROM character_ranking")).rows);
-            console.log("AVERAGE RATINGS:");
-            characterWithRatings.forEach((character) => {
-                console.log("Character: " + character.character.name);
-                console.log("Rating: " + character.rating);
-            });
             res.render("characterTierlist.ejs", { characters: characterWithRatings, user: req.user });
         } catch (error) {
             console.log(error);
@@ -484,6 +491,7 @@ app.get("/deleteUser/:id", async (req, res) => {
         try {
             const id = parseInt(req.params.id);
             await query("DELETE FROM users WHERE id = $1", [id]);
+            await query("DELETE FROM character_ranking WHERE user_id = $1", [id]);
             res.redirect("/users");
         } catch (error) {
             console.log(error);
